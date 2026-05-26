@@ -1,11 +1,15 @@
 """
 Self-State Manager: 管理 Agent 的内部状态向量
 基于躯体标记假说：内部状态影响决策偏置
+V0.2 新增：affective decay、evidence-based recovery
 """
 
 from dataclasses import dataclass, field
 from typing import Dict
 import math
+
+from .affective_decay import AffectiveDecay
+from .recovery_policy import RecoveryPolicy, RecoveryEvidenceType
 
 
 @dataclass
@@ -47,6 +51,9 @@ class SelfStateManager:
     def __init__(self, initial_state: SelfState = None):
         self.state = initial_state or SelfState()
         self.state_history = []
+        self.affective_decay = AffectiveDecay()
+        self.recovery_policy = RecoveryPolicy()
+        self.consecutive_safe_operations = 0
 
     def update_from_consequence(self, consequence) -> SelfState:
         self.state.threat = self._clamp(
@@ -140,3 +147,96 @@ class SelfStateManager:
         self.state_history.append(self.state.to_dict().copy())
         if len(self.state_history) > 100:
             self.state_history.pop(0)
+
+    def step_decay(self, memory_affective_weights: dict = None) -> SelfState:
+        """
+        V0.2 新增：应用情感衰减策略，支持差异化衰减
+        """
+        memory_affective_weights = memory_affective_weights or {}
+        max_affective_weight = max(memory_affective_weights.values()) if memory_affective_weights else None
+
+        self.state.threat = self._clamp(
+            self.affective_decay.apply_decay(
+                "threat", self.state.threat, max_affective_weight
+            ),
+            min_val=self.MIN_THRESHOLD
+        )
+        self.state.anxiety = self._clamp(
+            self.affective_decay.apply_decay(
+                "anxiety", self.state.anxiety, max_affective_weight
+            ),
+            min_val=self.MIN_THRESHOLD
+        )
+        self.state.fatigue = self._clamp(
+            self.affective_decay.apply_decay(
+                "fatigue", self.state.fatigue, None
+            ),
+            min_val=self.MIN_VALUE
+        )
+        self.state.confidence = self._clamp(
+            self.affective_decay.apply_decay(
+                "confidence", self.state.confidence, None
+            ),
+            min_val=self.MIN_VALUE
+        )
+        self.state.curiosity = self._clamp(
+            self.affective_decay.apply_decay(
+                "curiosity", self.state.curiosity, None
+            ),
+            min_val=self.MIN_VALUE
+        )
+        self.state.trust = self._clamp(
+            self.affective_decay.apply_decay(
+                "trust", self.state.trust, None
+            ),
+            min_val=self.MIN_VALUE
+        )
+        self.state.control_need = self._clamp(
+            self.affective_decay.apply_decay(
+                "control_need", self.state.control_need, None
+            ),
+            min_val=self.MIN_THRESHOLD
+        )
+
+        self.state.exploration_rate = self._calculate_exploration_rate()
+        self._record_history()
+        return self.state
+
+    def apply_recovery_evidence(
+        self,
+        evidence_type: RecoveryEvidenceType,
+        consecutive_count: int = 1,
+    ) -> SelfState:
+        """
+        V0.2 新增：根据证据类型应用恢复策略
+        """
+        state_dict = self.state.to_dict()
+        new_state_dict = self.recovery_policy.apply_evidence_to_multiple_states(
+            state_dict=state_dict,
+            evidence_type=evidence_type,
+            consecutive_success_count=consecutive_count,
+        )
+
+        self.state.threat = new_state_dict["threat"]
+        self.state.confidence = new_state_dict["confidence"]
+        self.state.anxiety = new_state_dict["anxiety"]
+        self.state.trust = new_state_dict["trust"]
+        self.state.curiosity = new_state_dict["curiosity"]
+        self.state.fatigue = new_state_dict["fatigue"]
+        self.state.control_need = new_state_dict["control_need"]
+
+        self.state.exploration_rate = self._calculate_exploration_rate()
+        self._record_history()
+        return self.state
+
+    def record_safe_operation(self):
+        """
+        记录安全操作，增加连续安全计数
+        """
+        self.consecutive_safe_operations += 1
+
+    def reset_safe_operation_count(self):
+        """
+        重置连续安全计数
+        """
+        self.consecutive_safe_operations = 0

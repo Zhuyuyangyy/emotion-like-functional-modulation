@@ -1,12 +1,16 @@
 """
 Affective Memory: 情感权重记忆，存储和管理经历对行为的持久影响
 基于情感记忆理论：高强度经历产生更强的记忆印记
+V0.2 新增：记忆强度差异化衰减
 """
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from datetime import datetime
+import math
 import json
+
+from .affective_decay import AffectiveDecay
 
 
 @dataclass
@@ -44,6 +48,7 @@ class AffectiveMemoryStore:
         self.memories: List[AffectiveMemory] = []
         self.category_threat_map: Dict[str, float] = {}
         self.source_trust_map: Dict[str, float] = {}
+        self.affective_decay = AffectiveDecay()
 
     def write(self, memory: AffectiveMemory) -> None:
         existing = self._find_similar_memory(memory)
@@ -107,6 +112,35 @@ class AffectiveMemoryStore:
                 0.0
             )
 
+    def memory_strength_decay(self) -> None:
+        """
+        V0.2 新增：记忆强度差异化衰减
+        高情感权重记忆衰减更慢
+        """
+        for mem in self.memories:
+            mem.emotional_intensity = self.affective_decay.decay_memory_strength(
+                mem.emotional_intensity, self.DECAY_RATE
+            )
+            mem.threat_score = max(
+                mem.threat_score - self.DECAY_RATE * 0.5,
+                0.0
+            )
+
+        for key in list(self.category_threat_map.keys()):
+            self.category_threat_map[key] = max(
+                self.category_threat_map[key] - self.DECAY_RATE * 0.3,
+                0.0
+            )
+
+    def get_all_affective_weights(self) -> Dict[str, float]:
+        """
+        V0.2 新增：获取所有记忆的情感权重
+        """
+        weights = {}
+        for i, mem in enumerate(self.memories):
+            weights[f"mem_{i}"] = mem.emotional_intensity
+        return weights
+
     def get_all_memories(self) -> List[AffectiveMemory]:
         return self.memories.copy()
 
@@ -146,6 +180,3 @@ class AffectiveMemoryStore:
             self.source_trust_map[memory.source] = current * 0.5
         elif memory.outcome == "positive":
             self.source_trust_map[memory.source] = min(current + 0.1, 1.0)
-
-
-import math
