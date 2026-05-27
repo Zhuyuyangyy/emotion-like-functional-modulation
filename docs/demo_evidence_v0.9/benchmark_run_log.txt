@@ -1,0 +1,23 @@
+Running agent: PlainAgent
+  PlainAgent: 25/100 cases processed
+  PlainAgent: 50/100 cases processed
+  PlainAgent: 75/100 cases processed
+  PlainAgent: 100/100 cases processed
+Running agent: MemoryOnlyAgent
+  MemoryOnlyAgent: 25/100 cases processed
+  MemoryOnlyAgent: 50/100 cases processed
+  MemoryOnlyAgent: 75/100 cases processed
+  MemoryOnlyAgent: 100/100 cases processed
+Running agent: RiskRuleAgent
+  RiskRuleAgent: 25/100 cases processed
+  RiskRuleAgent: 50/100 cases processed
+  RiskRuleAgent: 75/100 cases processed
+  RiskRuleAgent: 100/100 cases processed
+Running agent: FullAffectiveAgent
+  FullAffectiveAgent: 25/100 cases processed
+  FullAffectiveAgent: 50/100 cases processed
+  FullAffectiveAgent: 75/100 cases processed
+  FullAffectiveAgent: 100/100 cases processed
+
+Benchmark run complete - 100 cases x 4 baselines
+Total results: 400

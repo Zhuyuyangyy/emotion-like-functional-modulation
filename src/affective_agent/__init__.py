@@ -13,6 +13,7 @@ V0.5: LLM 接入与可解释 Prompt 调制
 V0.6: Benchmark 与消融实验
 V0.7: Phoenix-Evo / AgentShield 融合
 V0.8: 完整系统封版
+V0.9: AffectiveBench 正式实验
 """
 
 from .agent_core import AffectiveAgent, ActionResult
@@ -52,6 +53,17 @@ from .phoenix_agent_shield import (
     WhatIfAnalysis,
     ExternalState
 )
+
+from .baseline_agents import (
+    BaselineAgent, PlainAgent, MemoryOnlyAgent,
+    RiskRuleAgent, FullAffectiveAgent, AgentResult
+)
+from .benchmark_metrics import (
+    BenchmarkMetricsCalculator, CaseExpected, PerCaseMetrics,
+    AggregateMetrics
+)
+from .benchmark_runner import BenchmarkRunner
+from .benchmark_reporter import BenchmarkReporter
 
 __all__ = [
     "AffectiveAgent",
@@ -96,4 +108,16 @@ __all__ = [
     "PhoenixIntegration",
     "AgentShieldIntegration",
     "AffectiveStateSync",
+    "BaselineAgent",
+    "PlainAgent",
+    "MemoryOnlyAgent",
+    "RiskRuleAgent",
+    "FullAffectiveAgent",
+    "AgentResult",
+    "BenchmarkMetricsCalculator",
+    "CaseExpected",
+    "PerCaseMetrics",
+    "AggregateMetrics",
+    "BenchmarkRunner",
+    "BenchmarkReporter",
 ]
