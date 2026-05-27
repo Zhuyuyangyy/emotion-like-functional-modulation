@@ -1,7 +1,7 @@
 # Experience-Shaped Affective Agent
 
-[![Test Status](https://img.shields.io/badge/tests-65%20passed-brightgreen)]()
-[![Version](https://img.shields.io/badge/version-0.2-blue)]()
+[![Test Status](https://img.shields.io/badge/tests-110%20passed-brightgreen)]()
+[![Version](https://img.shields.io/badge/version-0.8-blue)]()
 
 ## Overview
 
@@ -14,81 +14,68 @@ Experience-Shaped Affective Agent is a model-agnostic framework for **emotion-li
 ## Key Features
 
 ### 1. Cognitive Appraisal Vector
-Multi-dimensional consequence evaluation that distinguishes between:
-- Controllable vs irreversible failures
-- External betrayal vs internal mistakes
-- High vs low uncertainty threats
+Multi-dimensional consequence evaluation that distinguishes between controllable vs irreversible failures, external betrayal vs internal mistakes, and high vs low uncertainty threats.
 
 ### 2. Interoceptive Self-State
-Continuous internal state representation including:
-- Threat, anxiety, confidence
-- Trust, fatigue, curiosity
-- Control need
+Continuous internal state representation including threat, anxiety, confidence, trust, fatigue, curiosity, and control need.
 
 ### 3. Affective Memory
-Experience storage weighted by:
-- Severity of consequences
-- Irreversibility of outcomes
-- Prediction error magnitude
+Experience storage weighted by severity, irreversibility, and prediction error magnitude.
 
 ### 4. Decay & Recovery
-Affective states exhibit time inertia:
-- Natural decay with different rates per state variable
-- Evidence-driven recovery (slower than collapse)
-- High-weight memories decay slower
+Affective states exhibit time inertia with natural decay, evidence-driven recovery (slower than collapse), and high-weight memories decaying slower.
 
-### 5. Strategy Modulation
-Emotion variables change policy parameters:
-- Risk threshold, verification steps
-- Exploration rate, human review probability
-- Memory retrieval bias, tool autonomy
+### 5. Affective Generalization
+Emotional influence propagation to similar events based on handcrafted features.
 
-### 6. Model-Agnostic Architecture
-Works with any LLM/Agent:
-- GPT, Claude, Qwen, DeepSeek
-- Local LLMs, rule-based planners, RL policies
+### 6. Conflict & Hesitation
+Observable intermediate actions for high-conflict scenarios: simulate first, create backup, request human review.
+
+### 7. LLM Integration (Mock)
+Affectively modulated planning with prompt injection, output validation, and model-agnostic architecture.
+
+### 8. Benchmark Suite
+100-task evaluation with 4 baselines and 6 metrics including False Over-Caution Rate.
 
 ## Project Structure
 
 ```
 src/affective_agent/
-├── __init__.py              # Package exports
-├── event_parser.py          # Event description parser
-├── consequence_evaluator.py # Cognitive appraisal evaluation
-├── self_state_manager.py    # Interoceptive self-state management
-├── affective_memory.py      # Emotion-weighted memory storage
-├── policy_modulator.py      # Strategy parameter modulation
-├── mock_llm_planner.py      # Mock LLM planner for testing
-├── agent_core.py            # Agent core loop
-├── affective_decay.py       # Affective state decay strategies
-├── recovery_policy.py       # Evidence-driven recovery
-└── state_trajectory_logger.py # State trajectory recording
+├── __init__.py                # Package exports
+├── event_parser.py            # Event description parser
+├── consequence_evaluator.py   # Cognitive appraisal evaluation
+├── self_state_manager.py      # Interoceptive self-state management
+├── affective_memory.py        # Emotion-weighted memory storage
+├── policy_modulator.py        # Strategy parameter modulation
+├── mock_llm_planner.py        # Mock LLM planner for testing
+├── agent_core.py              # Agent core loop
+├── affective_decay.py         # Affective state decay strategies
+├── recovery_policy.py         # Evidence-driven recovery
+├── state_trajectory_logger.py # State trajectory recording
+├── event_similarity.py        # Event similarity calculation (V0.3)
+├── affective_spread.py        # Emotional influence propagation (V0.3)
+├── semantic_risk_map.py       # Risk prediction based on semantics (V0.3)
+├── conflict_detector.py       # Reward-risk conflict detection (V0.4)
+├── hesitation_policy.py       # Intermediate action generation (V0.4)
+├── counterfactual_simulator.py # What-if analysis (V0.4)
+├── provider_openai.py         # Mock OpenAI provider (V0.5)
+├── prompt_modulator.py        # State-aware prompt injection (V0.5)
+├── llm_output_guard.py        # Output validation and sanitization (V0.5)
+├── llm_planner.py             # Affectively modulated planning (V0.5)
+├── affective_benchmark.py     # 100-task evaluation suite (V0.6)
+└── phoenix_agent_shield.py    # Phoenix-Evo/AgentShield integration (V0.7)
 
 demos/
-├── demo_pain_memory.py      # V0.1: Pain memory effect
-├── demo_trust_collapse.py   # V0.1: Trust collapse effect
-├── demo_anxiety_control.py  # V0.1: Anxiety control effect
-├── demo_fear_decay.py       # V0.2: Fear decay over time
-├── demo_trust_recovery.py   # V0.2: Trust recovery with evidence
-└── run_all.py               # Run all demos
+├── demo_pain_memory.py        # V0.1: Pain memory effect
+├── demo_trust_collapse.py     # V0.1: Trust collapse effect
+├── demo_anxiety_control.py    # V0.1: Anxiety control effect
+├── demo_fear_decay.py         # V0.2: Fear decay over time
+├── demo_trust_recovery.py     # V0.2: Trust recovery with evidence
+└── run_all.py                 # Run all demos
 
-tests/
-├── test_event_parser.py
-├── test_consequence_evaluator.py
-├── test_self_state_manager.py
-├── test_affective_memory.py
-├── test_policy_modulator.py
-├── test_affective_decay.py
-├── test_recovery_policy.py
-├── test_state_trajectory_logger.py
-├── test_demos.py
-└── test_v0_2_demos.py
-
-docs/
-├── V0.1_SPEC.md
-├── V0.1_ACCEPTANCE_REPORT.md
-├── V0.2_SPEC.md
-└── V0.2_ACCEPTANCE_REPORT.md
+tests/                         # 110 tests, all passing
+docs/                          # Version specs and acceptance reports
+benchmark/                     # Benchmark scripts
 ```
 
 ## Installation
@@ -102,7 +89,7 @@ pip install pytest
 ## Quick Start
 
 ```python
-from src.affective_agent import AffectiveAgent
+from affective_agent import AffectiveAgent
 
 agent = AffectiveAgent()
 
@@ -128,22 +115,7 @@ print(f"Auto execute: {policy.auto_execute}")
 ## Running Tests
 
 ```bash
-# Run all tests
 python -m pytest tests/ -v
-
-# Run specific module tests
-python -m pytest tests/test_affective_decay.py -v
-```
-
-## Running Demos
-
-```bash
-# Run all demos
-python demos/run_all.py
-
-# Run individual demo
-python demos/demo_pain_memory.py
-python demos/demo_fear_decay.py
 ```
 
 ## Version Roadmap
@@ -152,12 +124,14 @@ python demos/demo_fear_decay.py
 |---------|--------|-------------|
 | **V0.1** | ✅ | Rule-based affective modulation loop |
 | **V0.2** | ✅ | Decay & Recovery mechanisms |
-| **V0.3** | 📋 | Affective Generalization |
-| **V0.4** | 📋 | Conflict & Hesitation behavior |
-| **V0.5** | 📋 | LLM Integration (mock) |
-| **V0.6** | 📋 | Benchmark suite |
-| **V0.7** | 📋 | Phoenix-Evo/AgentShield integration |
-| **V0.8** | 📋 | Complete system integration |
+| **V0.3** | ✅ | Affective Generalization |
+| **V0.4** | ✅ | Conflict & Hesitation behavior |
+| **V0.5** | ✅ | LLM Integration (mock) |
+| **V0.6** | ✅ | Benchmark suite (100 tasks) |
+| **V0.7** | ✅ | Phoenix-Evo/AgentShield integration (adapter-level) |
+| **V0.8** | ✅ | Complete system integration |
+| **V0.8.1** | ✅ | Audit & Evidence Lock |
+| **V0.9** | 📋 | AffectiveBench formal validation |
 | **V1.0** | 📋 | Paper/technical report submission |
 
 ## Important Claims
@@ -175,18 +149,14 @@ python demos/demo_fear_decay.py
 
 ## Innovation Points
 
-1. **Cognitive Appraisal Vector**: Events evaluated across multiple dimensions (goal damage, control, reversibility, future threat)
+1. **Cognitive Appraisal Vector**: Events evaluated across multiple dimensions
 2. **Interoceptive Self-State**: Continuous state vector as planning bias
 3. **Affective Memory**: Severity-weighted experience storage with source trust tracking
-4. **Stimulus Generalization**: Emotional spread to similar events (planned for V0.3)
+4. **Stimulus Generalization**: Emotional spread to similar events
 5. **Strategy Modulation**: Emotion as policy parameter modifier, not output text modifier
 6. **Recovery Dynamics**: Evidence-based state recovery with time inertia
-7. **Hesitation Behavior**: Observable intermediate actions for high-conflict scenarios (planned for V0.4)
+7. **Hesitation Behavior**: Observable intermediate actions for high-conflict scenarios
 8. **Model-Agnostic Shell**: Works with any LLM/Agent
-
-## License
-
-This project is for research purposes.
 
 ## Citation
 

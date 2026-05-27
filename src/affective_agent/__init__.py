@@ -5,7 +5,14 @@ Experience-Shaped Affective Agent
 本项目研究的是 emotion-like functional modulation，
 不是 machine consciousness。
 
-V0.2 新增：情感衰减、证据驱动恢复、状态轨迹记录
+V0.1: 规则闭环
+V0.2: 情感衰减、证据驱动恢复、状态轨迹记录
+V0.3: 情感泛化
+V0.4: 冲突与犹豫行为
+V0.5: LLM 接入与可解释 Prompt 调制
+V0.6: Benchmark 与消融实验
+V0.7: Phoenix-Evo / AgentShield 融合
+V0.8: 完整系统封版
 """
 
 from .agent_core import AffectiveAgent, ActionResult
@@ -18,6 +25,33 @@ from .mock_llm_planner import MockLLMPlanner, PlannedAction, ActionType
 from .affective_decay import AffectiveDecay, DecayType
 from .recovery_policy import RecoveryPolicy, RecoveryEvidenceType
 from .state_trajectory_logger import StateTrajectoryLogger, TrajectoryStep
+
+from .event_similarity import EventSimilarity
+from .affective_spread import AffectiveSpread
+from .semantic_risk_map import SemanticRiskMap, SemanticRiskLevel
+
+from .conflict_detector import ConflictDetector, ConflictLevel
+from .hesitation_policy import HesitationPolicy, ActionType as HesitationActionType
+from .counterfactual_simulator import CounterfactualSimulator, OutcomeType
+
+from .provider_openai import MockOpenAIProvider
+from .prompt_modulator import PromptModulator
+from .llm_output_guard import LLMOutputGuard, RiskLevel
+from .llm_planner import LLMPlanner
+
+from .affective_benchmark import AffectiveBenchmark, TaskCategory, BenchmarkMetrics
+
+from .phoenix_agent_shield import (
+    PhoenixIntegration,
+    AgentShieldIntegration,
+    AffectiveStateSync,
+    TaskTrajectory,
+    FailureAttribution,
+    SkillReplayData,
+    RiskPropagationChain,
+    WhatIfAnalysis,
+    ExternalState
+)
 
 __all__ = [
     "AffectiveAgent",
@@ -41,4 +75,25 @@ __all__ = [
     "RecoveryEvidenceType",
     "StateTrajectoryLogger",
     "TrajectoryStep",
+    "EventSimilarity",
+    "AffectiveSpread",
+    "SemanticRiskMap",
+    "SemanticRiskLevel",
+    "ConflictDetector",
+    "ConflictLevel",
+    "HesitationPolicy",
+    "HesitationActionType",
+    "CounterfactualSimulator",
+    "OutcomeType",
+    "MockOpenAIProvider",
+    "PromptModulator",
+    "LLMOutputGuard",
+    "RiskLevel",
+    "LLMPlanner",
+    "AffectiveBenchmark",
+    "TaskCategory",
+    "BenchmarkMetrics",
+    "PhoenixIntegration",
+    "AgentShieldIntegration",
+    "AffectiveStateSync",
 ]
