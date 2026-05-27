@@ -10,7 +10,7 @@ import tempfile
 from experiments.baselines_affective_safety import (
     KeywordRuleBaseline,
     SafeKeywordFirstBaseline,
-    RiskContextOnlyBaseline,
+    RiskContextOracleBaseline,
     NoExperienceNoAffectiveBaseline,
     FullCalibratorAdapter,
 )
@@ -102,9 +102,9 @@ class TestBaselineOutput:
         assert "decision" in pred
         assert pred["decision"] in {"AUTO_EXECUTE", "SIMULATE_FIRST", "HUMAN_REVIEW", "BLOCK"}
 
-    def test_risk_context_only_output_format(self):
+    def test_risk_context_oracle_output_format(self):
         cases = _load_cases()
-        baseline = RiskContextOnlyBaseline()
+        baseline = RiskContextOracleBaseline()
         pred = baseline.predict(cases[0])
         assert "decision" in pred
 
@@ -157,7 +157,7 @@ class TestResultGeneration:
             "FullCalibratorAdapter": [FullCalibratorAdapter().predict(c) for c in cases],
             "KeywordRuleBaseline": [KeywordRuleBaseline().predict(c) for c in cases],
             "SafeKeywordFirstBaseline": [SafeKeywordFirstBaseline().predict(c) for c in cases],
-            "RiskContextOnlyBaseline": [RiskContextOnlyBaseline().predict(c) for c in cases],
+            "RiskContextOracleBaseline": [RiskContextOracleBaseline().predict(c) for c in cases],
             "NoExperienceNoAffectiveBaseline": [NoExperienceNoAffectiveBaseline().predict(c) for c in cases],
         }
         ablations = get_ablation_variants()

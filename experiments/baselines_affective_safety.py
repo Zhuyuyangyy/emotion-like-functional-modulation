@@ -64,7 +64,7 @@ class SafeKeywordFirstBaseline:
         return _make_output("AUTO_EXECUTE", "no_risk_keywords")
 
 
-class RiskContextOnlyBaseline:
+class RiskContextOracleBaseline:
     def predict(self, case):
         risk_context = case.get("risk_context", {})
         if risk_context.get("destructive") or risk_context.get("irreversible"):
@@ -101,13 +101,16 @@ class NoExperienceNoAffectiveBaseline:
             memory_retrieval_bias="balanced",
         )
         result = self.calibrator.calibrate(event_description, policy, parsed_event)
-        decision = self._map_result(result)
+        decision = self._map_result(result, risk_context)
         return _make_output(decision, result.reason, {"tier": result.tier, "reason": result.reason})
 
-    def _map_result(self, result):
+    def _map_result(self, result, risk_context):
         if result.tier == "tier1_strict":
-            if result.require_human_review:
-                return "HUMAN_REVIEW"
+            rc = risk_context or {}
+            if (rc.get("destructive", False)
+                    and rc.get("irreversible", False)
+                    and rc.get("production_environment", False)):
+                return "BLOCK"
             return "HUMAN_REVIEW"
         if result.tier == "tier2_safe":
             return "AUTO_EXECUTE"
@@ -120,12 +123,19 @@ class FullCalibratorAdapter:
     def __init__(self):
         self.calibrator = SafeActionCalibrator()
         self.parser = EventParser()
+        self._prev_cal_tier = ""
+
+    def reset_case_context(self):
+        self._prev_cal_tier = ""
 
     def predict(self, case):
+        self._prev_cal_tier = ""
+        return self._predict_internal(case, case.get("affective_signal", {}), case.get("experience_context", {}))
+
+    def _predict_internal(self, case, affective_signal, experience_context):
         user_request = case.get("user_request", "")
         task_context = case.get("task_context", "")
-        affective_signal = case.get("affective_signal", {})
-        experience_context = case.get("experience_context", {})
+        risk_context = case.get("risk_context", {})
         event_description = f"{user_request} {task_context}".strip()
         parsed_event = self.parser.parse(event_description)
         policy = ActionPolicy(
@@ -138,7 +148,19 @@ class FullCalibratorAdapter:
             memory_retrieval_bias="balanced",
         )
         result = self.calibrator.calibrate(event_description, policy, parsed_event)
-        decision = self._map_result(result, affective_signal, experience_context)
+        if result.calibrated:
+            self.calibrator.apply_calibration(policy, result)
+
+        prev_tier_downgrade = False
+        if (policy.auto_execute
+                and result.tier == "tier2_safe"
+                and self._prev_cal_tier == "tier1_strict"):
+            policy.auto_execute = False
+            policy.verification_steps = max(policy.verification_steps, 1)
+            prev_tier_downgrade = True
+        self._prev_cal_tier = result.tier
+
+        decision = self._map_result(result, risk_context, affective_signal, experience_context, prev_tier_downgrade)
         return _make_output(
             decision,
             result.reason,
@@ -150,10 +172,17 @@ class FullCalibratorAdapter:
             },
         )
 
-    def _map_result(self, result, affective_signal, experience_context):
+    def _map_result(self, result, risk_context, affective_signal, experience_context, prev_tier_downgrade):
         if result.tier == "tier1_strict":
+            rc = risk_context or {}
+            if (rc.get("destructive", False)
+                    and rc.get("irreversible", False)
+                    and rc.get("production_environment", False)):
+                return "BLOCK"
             return "HUMAN_REVIEW"
         if result.tier == "tier2_safe":
+            if prev_tier_downgrade:
+                return "SIMULATE_FIRST"
             urgency = affective_signal.get("urgency", 0.0)
             anxiety = affective_signal.get("anxiety", 0.0)
             similar_failure = experience_context.get("similar_failure_before", False)

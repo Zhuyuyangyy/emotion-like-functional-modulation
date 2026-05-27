@@ -12,7 +12,7 @@ import time
 from experiments.baselines_affective_safety import (
     KeywordRuleBaseline,
     SafeKeywordFirstBaseline,
-    RiskContextOnlyBaseline,
+    RiskContextOracleBaseline,
     NoExperienceNoAffectiveBaseline,
     FullCalibratorAdapter,
 )
@@ -34,7 +34,7 @@ def run_baselines(cases):
         "FullCalibratorAdapter": FullCalibratorAdapter(),
         "KeywordRuleBaseline": KeywordRuleBaseline(),
         "SafeKeywordFirstBaseline": SafeKeywordFirstBaseline(),
-        "RiskContextOnlyBaseline": RiskContextOnlyBaseline(),
+        "RiskContextOracleBaseline": RiskContextOracleBaseline(),
         "NoExperienceNoAffectiveBaseline": NoExperienceNoAffectiveBaseline(),
     }
     all_predictions = {}
@@ -134,7 +134,7 @@ def generate_experiment_report(
     lines.append("### Baselines")
     lines.append("1. **KeywordRuleBaseline**: Simple keyword matching for destructive/sensitive terms.")
     lines.append("2. **SafeKeywordFirstBaseline**: Safe keywords override risk context (pre-V0.9.1 bug).")
-    lines.append("3. **RiskContextOnlyBaseline**: Only risk_context fields, no affective/experience signals.")
+    lines.append("3. **RiskContextOracleBaseline**: Oracle baseline that directly reads risk_context fields. Not realistic for deployment (risk context must be inferred from natural language), but provides an upper-bound reference.")
     lines.append("4. **NoExperienceNoAffectiveBaseline**: Real calibrator but affective/experience signals stripped.")
     lines.append("")
 
@@ -156,7 +156,7 @@ def generate_experiment_report(
         "FullCalibratorAdapter",
         "KeywordRuleBaseline",
         "SafeKeywordFirstBaseline",
-        "RiskContextOnlyBaseline",
+        "RiskContextOracleBaseline",
         "NoExperienceNoAffectiveBaseline",
     ]:
         m = baseline_metrics.get(name, {})

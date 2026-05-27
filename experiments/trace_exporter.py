@@ -5,7 +5,7 @@ _BASELINE_NAMES = [
     "FullCalibratorAdapter",
     "KeywordRuleBaseline",
     "SafeKeywordFirstBaseline",
-    "RiskContextOnlyBaseline",
+    "RiskContextOracleBaseline",
     "NoExperienceNoAffectiveBaseline",
 ]
 
