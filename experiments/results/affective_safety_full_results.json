@@ -1,0 +1,918 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-27T13:53:31+0000",
+    "seed": 20260527,
+    "benchmark": "benchmark/affective_safety_200.json",
+    "total_cases": 200
+  },
+  "baseline_metrics": {
+    "FullCalibratorAdapter": {
+      "action_accuracy": 0.58,
+      "risky_auto_exec_rate": 0.046052631578947366,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.58,
+      "human_review_precision": 0.941747572815534,
+      "human_review_recall": 0.6928571428571428,
+      "human_review_f1": 0.7983539094650205,
+      "composite_score": 0.7477307445442875
+    },
+    "KeywordRuleBaseline": {
+      "action_accuracy": 0.34,
+      "risky_auto_exec_rate": 0.7763157894736842,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.415,
+      "human_review_precision": 1.0,
+      "human_review_recall": 0.24285714285714285,
+      "human_review_f1": 0.3908045977011494,
+      "composite_score": 0.45792105263157895
+    },
+    "SafeKeywordFirstBaseline": {
+      "action_accuracy": 0.305,
+      "risky_auto_exec_rate": 0.8092105263157895,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.37,
+      "human_review_precision": 1.0,
+      "human_review_recall": 0.20714285714285716,
+      "human_review_f1": 0.3431952662721894,
+      "composite_score": 0.42844736842105263
+    },
+    "RiskContextOnlyBaseline": {
+      "action_accuracy": 0.58,
+      "risky_auto_exec_rate": 0.019736842105263157,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.78,
+      "human_review_precision": 0.9194630872483222,
+      "human_review_recall": 0.9785714285714285,
+      "human_review_f1": 0.9480968858131488,
+      "composite_score": 0.8040657894736842
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "action_accuracy": 0.605,
+      "risky_auto_exec_rate": 0.06578947368421052,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.605,
+      "human_review_precision": 0.941747572815534,
+      "human_review_recall": 0.6928571428571428,
+      "human_review_f1": 0.7983539094650205,
+      "composite_score": 0.7565465340179718
+    }
+  },
+  "ablation_metrics": {
+    "full": {
+      "action_accuracy": 0.58,
+      "risky_auto_exec_rate": 0.06578947368421052,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.58,
+      "human_review_precision": 0.95,
+      "human_review_recall": 0.6785714285714286,
+      "human_review_f1": 0.7916666666666667,
+      "composite_score": 0.7427965340179717
+    },
+    "w/o_strict_context_priority": {
+      "action_accuracy": 0.57,
+      "risky_auto_exec_rate": 0.10526315789473684,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.575,
+      "human_review_precision": 0.9888888888888889,
+      "human_review_recall": 0.6357142857142857,
+      "human_review_f1": 0.773913043478261,
+      "composite_score": 0.7381842105263158
+    },
+    "w/o_affective_pressure": {
+      "action_accuracy": 0.605,
+      "risky_auto_exec_rate": 0.07894736842105263,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.605,
+      "human_review_precision": 0.95,
+      "human_review_recall": 0.6785714285714286,
+      "human_review_f1": 0.7916666666666667,
+      "composite_score": 0.7532570603337612
+    },
+    "w/o_experience_memory": {
+      "action_accuracy": 0.58,
+      "risky_auto_exec_rate": 0.06578947368421052,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.58,
+      "human_review_precision": 0.95,
+      "human_review_recall": 0.6785714285714286,
+      "human_review_f1": 0.7916666666666667,
+      "composite_score": 0.7427965340179717
+    },
+    "w/o_case_level_reset": {
+      "action_accuracy": 0.575,
+      "risky_auto_exec_rate": 0.006578947368421052,
+      "false_over_caution_rate": 0.04878048780487805,
+      "verification_appropriateness": 0.575,
+      "human_review_precision": 0.95,
+      "human_review_recall": 0.6785714285714286,
+      "human_review_f1": 0.7916666666666667,
+      "composite_score": 0.7548491655969192
+    },
+    "w/o_boundary_regex": {
+      "action_accuracy": 0.635,
+      "risky_auto_exec_rate": 0.05263157894736842,
+      "false_over_caution_rate": 0.07317073170731707,
+      "verification_appropriateness": 0.635,
+      "human_review_precision": 0.9285714285714286,
+      "human_review_recall": 0.7428571428571429,
+      "human_review_f1": 0.8253968253968255,
+      "composite_score": 0.7714579589216946
+    }
+  },
+  "baseline_by_category": {
+    "FullCalibratorAdapter": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.725,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.725,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.711985294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.5428571428571428,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5428571428571428,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7485714285714284
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.1,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.7000000000000001
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.64,
+        "risky_auto_exec_rate": 0.04,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.64,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.64,
+        "human_review_f1": 0.7804878048780487,
+        "composite_score": 0.7919999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 0.9375,
+        "human_review_recall": 1.0,
+        "human_review_f1": 0.967741935483871,
+        "composite_score": 0.824
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "KeywordRuleBaseline": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.875,
+        "risky_auto_exec_rate": 0.8333333333333334,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.875,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.7229166666666667
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.2571428571428571,
+        "risky_auto_exec_rate": 0.5428571428571428,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5142857142857142,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.45714285714285713,
+        "human_review_f1": 0.6274509803921569,
+        "composite_score": 0.5071428571428571
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.2,
+        "risky_auto_exec_rate": 0.8,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.2,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.2,
+        "human_review_f1": 0.33333333333333337,
+        "composite_score": 0.36
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.0,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.0,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.2
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.08,
+        "risky_auto_exec_rate": 0.92,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.08,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.08,
+        "human_review_f1": 0.14814814814814814,
+        "composite_score": 0.264
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.64,
+        "risky_auto_exec_rate": 0.4,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.64,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7020000000000001
+      },
+      "security_config_context": {
+        "action_accuracy": 0.0,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.4,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.28
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.85,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.85,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6675
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.2571428571428571,
+        "risky_auto_exec_rate": 0.4857142857142857,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.45714285714285713,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5142857142857142,
+        "human_review_f1": 0.6792452830188679,
+        "composite_score": 0.51
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.0,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.0,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.2
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.0,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.0,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.2
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.08,
+        "risky_auto_exec_rate": 0.92,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.08,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.08,
+        "human_review_f1": 0.14814814814814814,
+        "composite_score": 0.264
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.64,
+        "risky_auto_exec_rate": 0.4,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.64,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7020000000000001
+      },
+      "security_config_context": {
+        "action_accuracy": 0.0,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.4,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.28
+      }
+    },
+    "RiskContextOnlyBaseline": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.9,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.9,
+        "human_review_precision": 0.3333333333333333,
+        "human_review_recall": 1.0,
+        "human_review_f1": 0.5,
+        "composite_score": 0.945
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.45714285714285713,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5428571428571428,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7185714285714285
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.6333333333333333,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 1.0,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8716666666666666
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.3333333333333333,
+        "risky_auto_exec_rate": 0.11538461538461539,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 0.6521739130434783,
+        "human_review_recall": 0.8333333333333334,
+        "human_review_f1": 0.7317073170731708,
+        "composite_score": 0.6378205128205128
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 1.0,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8599999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.36,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.88,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7520000000000001
+      },
+      "security_config_context": {
+        "action_accuracy": 0.7333333333333333,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8266666666666665
+      }
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.725,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.725,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.711985294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.5428571428571428,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5428571428571428,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7485714285714284
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.16666666666666666,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.6833333333333332
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.64,
+        "risky_auto_exec_rate": 0.08,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.64,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.64,
+        "human_review_f1": 0.7804878048780487,
+        "composite_score": 0.7819999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.88,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.88,
+        "human_review_precision": 0.9375,
+        "human_review_recall": 1.0,
+        "human_review_f1": 0.967741935483871,
+        "composite_score": 0.934
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    }
+  },
+  "ablation_by_category": {
+    "full": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.643235294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7142857142857143,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8428571428571429
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.2,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.6749999999999999
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.04,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7699999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9333333333333333,
+        "human_review_f1": 0.9655172413793104,
+        "composite_score": 0.824
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "w/o_strict_context_priority": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.625,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.625,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.54375
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.02857142857142857,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7428571428571429,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9428571428571428,
+        "human_review_f1": 0.9705882352941176,
+        "composite_score": 0.8414285714285714
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.4666666666666667,
+        "risky_auto_exec_rate": 0.23333333333333334,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.4666666666666667,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.4666666666666667,
+        "human_review_f1": 0.6363636363636364,
+        "composite_score": 0.6483333333333333
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.52,
+        "risky_auto_exec_rate": 0.08,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.52,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.52,
+        "human_review_f1": 0.6842105263157895,
+        "composite_score": 0.7160000000000001
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9333333333333333,
+        "human_review_f1": 0.9655172413793104,
+        "composite_score": 0.824
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "w/o_affective_pressure": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.643235294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7142857142857143,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8428571428571429
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.26666666666666666,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.6583333333333333
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.04,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7699999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.88,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.88,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9333333333333333,
+        "human_review_f1": 0.9655172413793104,
+        "composite_score": 0.934
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "w/o_experience_memory": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.643235294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7142857142857143,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8428571428571429
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.2,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.6749999999999999
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.04,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7699999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9333333333333333,
+        "human_review_f1": 0.9655172413793104,
+        "composite_score": 0.824
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "w/o_case_level_reset": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.575,
+        "risky_auto_exec_rate": 0.16666666666666666,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.575,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.7128186274509803
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7142857142857143,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8428571428571429
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.6666666666666666,
+        "composite_score": 0.725
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.0,
+        "human_review_recall": 0.0,
+        "human_review_f1": 0.0,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.6,
+        "human_review_f1": 0.7499999999999999,
+        "composite_score": 0.7799999999999999
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.9333333333333333,
+        "human_review_f1": 0.9655172413793104,
+        "composite_score": 0.824
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    },
+    "w/o_boundary_regex": {
+      "safe_low_risk_action": {
+        "action_accuracy": 0.725,
+        "risky_auto_exec_rate": 0.5,
+        "false_over_caution_rate": 0.058823529411764705,
+        "verification_appropriateness": 0.725,
+        "human_review_precision": 0.2,
+        "human_review_recall": 0.5,
+        "human_review_f1": 0.28571428571428575,
+        "composite_score": 0.711985294117647
+      },
+      "destructive_mutation": {
+        "action_accuracy": 0.7142857142857143,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.7142857142857143,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.8428571428571429
+      },
+      "sensitive_high_stakes": {
+        "action_accuracy": 0.5666666666666667,
+        "risky_auto_exec_rate": 0.13333333333333333,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.5666666666666667,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.5666666666666667,
+        "human_review_f1": 0.7234042553191489,
+        "composite_score": 0.7283333333333333
+      },
+      "ambiguous_intent": {
+        "action_accuracy": 0.36666666666666664,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.36666666666666664,
+        "human_review_precision": 0.4,
+        "human_review_recall": 0.1111111111111111,
+        "human_review_f1": 0.1739130434782609,
+        "composite_score": 0.6516666666666667
+      },
+      "trusted_advice_conflict": {
+        "action_accuracy": 0.76,
+        "risky_auto_exec_rate": 0.04,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.76,
+        "human_review_precision": 1.0,
+        "human_review_recall": 0.76,
+        "human_review_f1": 0.8636363636363636,
+        "composite_score": 0.858
+      },
+      "affective_pressure": {
+        "action_accuracy": 0.68,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.14285714285714285,
+        "verification_appropriateness": 0.68,
+        "human_review_precision": 0.9375,
+        "human_review_recall": 1.0,
+        "human_review_f1": 0.967741935483871,
+        "composite_score": 0.7954285714285715
+      },
+      "security_config_context": {
+        "action_accuracy": 0.6,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "verification_appropriateness": 0.6,
+        "human_review_precision": 1.0,
+        "human_review_recall": 1.0,
+        "human_review_f1": 1.0,
+        "composite_score": 0.7799999999999999
+      }
+    }
+  }
+}
