@@ -100,12 +100,12 @@ def fig3_risky_comparison():
         'FullCalibratorAdapter',
         'KeywordRuleBaseline',
         'SafeKeywordFirstBaseline',
-        'RiskContextOracleBaseline*',
+        'RiskContextOracleBaseline\n(Oracle, not deployable)',
         'NoExperienceNoAffectiveBaseline',
     ]
     values = [0.036, 0.780, 0.872, 0.064, 0.043]
 
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(7, 4.5))
     colors = ['#2c2c2c', '#888888', '#aaaaaa', '#cccccc', '#666666']
     hatches = ['', '//', '\\\\', '..', 'xx']
 
@@ -123,9 +123,9 @@ def fig3_risky_comparison():
         ax.text(v + 0.02, i, f'{v:.3f}', va='center', fontsize=8)
 
     ax.axvline(x=0.05, color='red', linestyle='--', linewidth=0.8, alpha=0.7)
-    ax.text(0.055, -0.3, 'target ≤ 0.05', fontsize=7, color='red')
+    ax.text(0.055, -0.4, 'target ≤ 0.05', fontsize=7, color='red')
 
-    ax.text(0.5, 4.8, '* Oracle / upper-bound diagnostic baseline, not deployable',
+    ax.text(0.5, 5.0, 'Oracle baseline reads structured risk context directly; not a deployable method.',
             fontsize=6.5, style='italic', ha='center', transform=ax.get_xaxis_transform())
 
     ax.spines['top'].set_visible(False)
@@ -169,7 +169,7 @@ def fig4_longitudinal():
                 fontsize=7, ha='center',
                 arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
 
-    ax.annotate('Over-caution\ncollapse', xy=(2, 0.0), xytext=(2.5, 0.3),
+    ax.annotate('Over-caution collapse\n(not recommended)', xy=(2, 0.0), xytext=(2.5, 0.3),
                 fontsize=7, ha='center',
                 arrowprops=dict(arrowstyle='->', color='black', lw=0.8))
 
