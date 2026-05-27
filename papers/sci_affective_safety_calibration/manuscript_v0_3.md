@@ -208,7 +208,7 @@ Most errors come from coding agent trace scenarios, where the complexity of code
 - We do not claim real-time emotion recognition.
 - We do not claim the traces are collected from real enterprise systems.
 - We do not claim general autonomous agent safety.
-- We do not claim superior performance against all safety systems.
+- We do not claim competitive baseline performance against all safety systems.
 
 ---
 

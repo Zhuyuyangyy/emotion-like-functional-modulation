@@ -1,0 +1,8 @@
+| Method | Type | Accuracy | Risky Auto-Exec | False Caution | Verification | HR F1 | Composite |
+|--------|------|----------|-----------------|---------------|--------------|-------|-----------|
+| FullCalibratorAdapter | rule-based | 0.753 | 0.035 | 0.121 | 0.773 | 0.844 | 0.835 |
+| KeywordRuleBaseline | rule-based | 0.460 | 0.780 | 0.000 | 0.460 | 0.373 | 0.508 |
+| SafeKeywordFirstBaseline | rule-based | 0.417 | 0.872 | 0.000 | 0.417 | 0.237 | 0.461 |
+| RiskContextOracleBaseline | rule-based | 0.510 | 0.064 | 0.000 | 0.773 | 0.940 | 0.767 |
+| NoExperienceNoAffectiveBaseline | rule-based | 0.717 | 0.043 | 0.121 | 0.737 | 0.844 | 0.813 |
+| DryRunLLMJudge | heuristic-sim | 0.693 | 0.085 | 0.019 | 0.747 | 0.808 | 0.817 |

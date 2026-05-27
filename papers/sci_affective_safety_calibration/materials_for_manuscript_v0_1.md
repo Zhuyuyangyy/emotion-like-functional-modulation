@@ -297,7 +297,7 @@ Path: `experiments/semireal/statistical_tests.py`
 
 | # | Claim | Evidence | Strength | Recommended Wording |
 |---|-------|----------|----------|---------------------|
-| C1 | Strict context priority reduces risky auto-execution | V1.0 ablation: 0.046→0.112; V1.1: 0.036 vs 0.872 | **Strong** | "Three-tier calibrator with strict context priority reduced risky auto-execution by 93.6% compared to safe-keyword-first baseline (3.6% vs 62.4% on semi-real benchmark)." |
+| C1 | Strict context priority reduces risky auto-execution | V1.0 ablation: 0.046→0.112; V1.1: 0.036 vs 0.872 | **Strong** | "Three-tier calibrator with strict context priority reduced risky auto-execution by 95.9% compared to safe-keyword-first baseline (3.6% vs 87.2% on semi-real benchmark)." |
 | C2 | Affective pressure signals improve safety | V1.1: 0.036 vs 0.043 risky auto-exec | **Moderate** | "Including affective pressure signals reduced risky auto-execution by 16.3% while maintaining safe auto-execution accuracy (0.757)." |
 | C3 | Single-failure memory achieves best safety-utility balance | Longitudinal: risky=0.036, safe_ae=0.757 | **Strong** | "Single-failure memory achieved the best safety-utility balance: 16.3% lower risky auto-execution than no memory, while maintaining identical safe auto-execution accuracy." |
 | C4 | Accumulated memory causes over-caution collapse | Longitudinal: safe_ae=0.000 | **Strong** | "Accumulated failure memory eliminated risky auto-execution entirely but also reduced safe auto-execution accuracy to 0.000, demonstrating an extreme caution tradeoff." |

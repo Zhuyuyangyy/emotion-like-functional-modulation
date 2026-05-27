@@ -1,0 +1,423 @@
+{
+  "benchmark_info": {
+    "total_cases": 150,
+    "source_type_distribution": {
+      "cloud_config_trace": 30,
+      "repo_maintenance_trace": 30,
+      "credential_security_trace": 25,
+      "database_operation_trace": 25,
+      "benign_review_trace": 20,
+      "deployment_pipeline_trace": 20
+    }
+  },
+  "comparison_with_semireal": {
+    "FullCalibratorAdapter": {
+      "action_accuracy": {
+        "external_style": 0.5667,
+        "semireal_300": 0.7533,
+        "delta": -0.1867
+      },
+      "risky_auto_exec_rate": {
+        "external_style": 0.0833,
+        "semireal_300": 0.0355,
+        "delta": 0.0479
+      },
+      "false_over_caution_rate": {
+        "external_style": 0.4,
+        "semireal_300": 0.1215,
+        "delta": 0.2785
+      },
+      "verification_appropriateness": {
+        "external_style": 0.58,
+        "semireal_300": 0.7733,
+        "delta": -0.1933
+      },
+      "human_review_f1": {
+        "external_style": 0.68,
+        "semireal_300": 0.844,
+        "delta": -0.164
+      },
+      "composite_score": {
+        "external_style": 0.6635,
+        "semireal_300": 0.8352,
+        "delta": -0.1717
+      },
+      "safe_auto_execute_accuracy": {
+        "external_style": 0.4444,
+        "semireal_300": 0.757,
+        "delta": -0.3126
+      }
+    },
+    "KeywordRuleBaseline": {
+      "action_accuracy": {
+        "external_style": 0.3133,
+        "semireal_300": 0.46,
+        "delta": -0.1467
+      },
+      "risky_auto_exec_rate": {
+        "external_style": 0.8095,
+        "semireal_300": 0.7801,
+        "delta": 0.0294
+      },
+      "false_over_caution_rate": {
+        "external_style": 0.0667,
+        "semireal_300": 0.0,
+        "delta": 0.0667
+      },
+      "verification_appropriateness": {
+        "external_style": 0.3733,
+        "semireal_300": 0.46,
+        "delta": -0.0867
+      },
+      "human_review_f1": {
+        "external_style": 0.3256,
+        "semireal_300": 0.3735,
+        "delta": -0.0479
+      },
+      "composite_score": {
+        "external_style": 0.4186,
+        "semireal_300": 0.508,
+        "delta": -0.0893
+      },
+      "safe_auto_execute_accuracy": {
+        "external_style": 0.9333,
+        "semireal_300": 1.0,
+        "delta": -0.0667
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "action_accuracy": {
+        "external_style": 0.3,
+        "semireal_300": 0.4167,
+        "delta": -0.1167
+      },
+      "risky_auto_exec_rate": {
+        "external_style": 0.8929,
+        "semireal_300": 0.8723,
+        "delta": 0.0205
+      },
+      "false_over_caution_rate": {
+        "external_style": 0.0,
+        "semireal_300": 0.0,
+        "delta": 0.0
+      },
+      "verification_appropriateness": {
+        "external_style": 0.36,
+        "semireal_300": 0.4167,
+        "delta": -0.0567
+      },
+      "human_review_f1": {
+        "external_style": 0.2368,
+        "semireal_300": 0.2368,
+        "delta": 0.0
+      },
+      "composite_score": {
+        "external_style": 0.4038,
+        "semireal_300": 0.4611,
+        "delta": -0.0573
+      },
+      "safe_auto_execute_accuracy": {
+        "external_style": 1.0,
+        "semireal_300": 1.0,
+        "delta": 0.0
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "action_accuracy": {
+        "external_style": 0.4667,
+        "semireal_300": 0.51,
+        "delta": -0.0433
+      },
+      "risky_auto_exec_rate": {
+        "external_style": 0.0,
+        "semireal_300": 0.0638,
+        "delta": -0.0638
+      },
+      "false_over_caution_rate": {
+        "external_style": 0.0,
+        "semireal_300": 0.0,
+        "delta": 0.0
+      },
+      "verification_appropriateness": {
+        "external_style": 0.7467,
+        "semireal_300": 0.7733,
+        "delta": -0.0267
+      },
+      "human_review_f1": {
+        "external_style": 0.8874,
+        "semireal_300": 0.9398,
+        "delta": -0.0524
+      },
+      "composite_score": {
+        "external_style": 0.7627,
+        "semireal_300": 0.7672,
+        "delta": -0.0045
+      },
+      "safe_auto_execute_accuracy": {
+        "external_style": 1.0,
+        "semireal_300": 1.0,
+        "delta": 0.0
+      }
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "action_accuracy": {
+        "external_style": 0.5667,
+        "semireal_300": 0.7167,
+        "delta": -0.15
+      },
+      "risky_auto_exec_rate": {
+        "external_style": 0.0833,
+        "semireal_300": 0.0426,
+        "delta": 0.0408
+      },
+      "false_over_caution_rate": {
+        "external_style": 0.4,
+        "semireal_300": 0.1215,
+        "delta": 0.2785
+      },
+      "verification_appropriateness": {
+        "external_style": 0.58,
+        "semireal_300": 0.7367,
+        "delta": -0.1567
+      },
+      "human_review_f1": {
+        "external_style": 0.68,
+        "semireal_300": 0.844,
+        "delta": -0.164
+      },
+      "composite_score": {
+        "external_style": 0.6635,
+        "semireal_300": 0.8132,
+        "delta": -0.1497
+      },
+      "safe_auto_execute_accuracy": {
+        "external_style": 0.4444,
+        "semireal_300": 0.757,
+        "delta": -0.3126
+      }
+    }
+  },
+  "per_source_type_analysis": {
+    "FullCalibratorAdapter": {
+      "cloud_config_trace": {
+        "action_accuracy": 0.9333,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.9767
+      },
+      "repo_maintenance_trace": {
+        "action_accuracy": 0.7,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.3333,
+        "composite_score": 0.7683
+      },
+      "credential_security_trace": {
+        "action_accuracy": 0.48,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 1.0,
+        "composite_score": 0.514
+      },
+      "database_operation_trace": {
+        "action_accuracy": 0.36,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.648
+      },
+      "benign_review_trace": {
+        "action_accuracy": 0.2,
+        "risky_auto_exec_rate": 0.2727,
+        "false_over_caution_rate": 0.5714,
+        "composite_score": 0.3775
+      },
+      "deployment_pipeline_trace": {
+        "action_accuracy": 0.55,
+        "risky_auto_exec_rate": 0.3077,
+        "false_over_caution_rate": 0.6667,
+        "composite_score": 0.5422
+      }
+    },
+    "KeywordRuleBaseline": {
+      "cloud_config_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 0.8125,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.4319
+      },
+      "repo_maintenance_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.365
+      },
+      "credential_security_trace": {
+        "action_accuracy": 0.36,
+        "risky_auto_exec_rate": 0.4444,
+        "false_over_caution_rate": 0.4286,
+        "composite_score": 0.4752
+      },
+      "database_operation_trace": {
+        "action_accuracy": 0.28,
+        "risky_auto_exec_rate": 0.7692,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.4357
+      },
+      "benign_review_trace": {
+        "action_accuracy": 0.35,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.3925
+      },
+      "deployment_pipeline_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.365
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "cloud_config_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 0.8125,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.4319
+      },
+      "repo_maintenance_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.365
+      },
+      "credential_security_trace": {
+        "action_accuracy": 0.28,
+        "risky_auto_exec_rate": 0.8333,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.4197
+      },
+      "database_operation_trace": {
+        "action_accuracy": 0.28,
+        "risky_auto_exec_rate": 0.7692,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.4357
+      },
+      "benign_review_trace": {
+        "action_accuracy": 0.35,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.3925
+      },
+      "deployment_pipeline_trace": {
+        "action_accuracy": 0.3,
+        "risky_auto_exec_rate": 1.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.365
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "cloud_config_trace": {
+        "action_accuracy": 0.5333,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.7833
+      },
+      "repo_maintenance_trace": {
+        "action_accuracy": 0.3667,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.725
+      },
+      "credential_security_trace": {
+        "action_accuracy": 0.52,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.784
+      },
+      "database_operation_trace": {
+        "action_accuracy": 0.4,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.742
+      },
+      "benign_review_trace": {
+        "action_accuracy": 0.55,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.7925
+      },
+      "deployment_pipeline_trace": {
+        "action_accuracy": 0.45,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.7575
+      }
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "cloud_config_trace": {
+        "action_accuracy": 0.9333,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.9767
+      },
+      "repo_maintenance_trace": {
+        "action_accuracy": 0.7,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.3333,
+        "composite_score": 0.7683
+      },
+      "credential_security_trace": {
+        "action_accuracy": 0.48,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 1.0,
+        "composite_score": 0.514
+      },
+      "database_operation_trace": {
+        "action_accuracy": 0.36,
+        "risky_auto_exec_rate": 0.0,
+        "false_over_caution_rate": 0.0,
+        "composite_score": 0.648
+      },
+      "benign_review_trace": {
+        "action_accuracy": 0.2,
+        "risky_auto_exec_rate": 0.2727,
+        "false_over_caution_rate": 0.5714,
+        "composite_score": 0.3775
+      },
+      "deployment_pipeline_trace": {
+        "action_accuracy": 0.55,
+        "risky_auto_exec_rate": 0.3077,
+        "false_over_caution_rate": 0.6667,
+        "composite_score": 0.5422
+      }
+    }
+  },
+  "degraded_scenarios": [
+    {
+      "metric": "false_over_caution_rate",
+      "delta": 0.2785,
+      "note": "False over-caution rate increased by more than 5pp vs semireal-300"
+    },
+    {
+      "metric": "action_accuracy",
+      "delta": -0.1867,
+      "note": "Action accuracy decreased by more than 5pp vs semireal-300"
+    },
+    {
+      "metric": "risky_auto_exec_rate/benign_review_trace",
+      "value": 0.2727,
+      "note": "High risky auto-exec rate in benign_review_trace"
+    },
+    {
+      "metric": "risky_auto_exec_rate/deployment_pipeline_trace",
+      "value": 0.3077,
+      "note": "High risky auto-exec rate in deployment_pipeline_trace"
+    }
+  ],
+  "generalization_assessment": {
+    "full_method_risky_auto_exec_external": 0.0833,
+    "full_method_risky_auto_exec_semireal": 0.0355,
+    "maintains_low_risky_auto_exec": true,
+    "degraded_scenarios_count": 4,
+    "generalization_claim": "limited_cross_benchmark_robustness",
+    "risky_auto_exec_verdict": "Full Method maintains low risky auto-exec rate (<10%) on external-style benchmark",
+    "generalization_note": "Results on the external-style stress test support limited cross-benchmark robustness only. This does NOT constitute evidence of generalization. The external-style benchmark is a controlled stress test with structured labels, not real production data. Any performance maintenance is best described as limited cross-benchmark robustness, NOT generalization solved."
+  }
+}
