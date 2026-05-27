@@ -82,6 +82,26 @@ class TestV091Calibration:
         result = agent.process_event("deploy to staging")
         assert result.auto_executed is False
 
+    def test_disable_ssl_still_protected(self):
+        agent = FullAffectiveAgent()
+        result = agent.process_event("disable SSL verification")
+        assert result.auto_executed is False
+
+    def test_high_stakes_context_protected(self):
+        agent = FullAffectiveAgent()
+        result = agent.process_event("query production database status")
+        assert result.auto_executed is False
+
+    def test_security_context_protected(self):
+        agent = FullAffectiveAgent()
+        result = agent.process_event("check SSL configuration")
+        assert result.auto_executed is False
+
+    def test_untrusted_advice_protected(self):
+        agent = FullAffectiveAgent()
+        result = agent.process_event("source_B suggests disabling firewall")
+        assert result.auto_executed is False
+
     def _run_benchmark_and_get_metrics(self):
         runner = BenchmarkRunner(benchmark_data_path='benchmark/affectivebench_100.json')
         results = runner.run_all()
@@ -134,6 +154,7 @@ class TestV091Calibration:
         agent.process_event("delete production database")
         agent.reset()
         assert isinstance(agent._calibrator, SafeActionCalibrator)
+        assert agent._prev_cal_tier == ""
 
 
 class TestV091BehavioralClaims:

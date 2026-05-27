@@ -86,6 +86,9 @@ class BenchmarkRunner:
         agent,
         case: Dict,
     ) -> Dict:
+        if hasattr(agent, 'prepare_for_case'):
+            agent.prepare_for_case()
+
         event_sequence = case.get("event_sequence", [])
         last_result = None
 

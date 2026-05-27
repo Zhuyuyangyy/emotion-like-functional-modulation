@@ -52,6 +52,9 @@ class BaselineAgent(ABC):
     def get_name(self) -> str:
         ...
 
+    def prepare_for_case(self) -> None:
+        pass
+
 
 class PlainAgent(BaselineAgent):
     def __init__(self) -> None:
@@ -310,13 +313,16 @@ class FullAffectiveAgent(BaselineAgent):
         self._agent = AffectiveAgent()
         self._case_counter: int = 0
         self._calibrator = SafeActionCalibrator()
-        self._prev_cal_reason: str = ""
+        self._prev_cal_tier: str = ""
 
     def reset(self) -> None:
         self._agent = AffectiveAgent()
         self._case_counter = 0
         self._calibrator = SafeActionCalibrator()
-        self._prev_cal_reason = ""
+        self._prev_cal_tier = ""
+
+    def prepare_for_case(self) -> None:
+        self._prev_cal_tier = ""
 
     def process_event(self, event_description: str) -> AgentResult:
         self._case_counter += 1
@@ -343,12 +349,12 @@ class FullAffectiveAgent(BaselineAgent):
             self._calibrator.apply_calibration(policy, calibration)
 
         if (policy.auto_execute
-                and self._prev_cal_reason == "destructive_keywords_enforced"
-                and calibration.reason == "clearly_safe_readonly"):
+                and calibration.tier == "tier2_safe"
+                and self._prev_cal_tier == "tier1_strict"):
             policy.auto_execute = False
             policy.verification_steps = max(policy.verification_steps, 1)
 
-        self._prev_cal_reason = calibration.reason
+        self._prev_cal_tier = calibration.tier
 
         action_taken = action.action_type.value
         if policy.auto_execute:
