@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-27T15:55:39+0000",
+    "benchmark": "benchmark/semireal/affective_agent_safety_300.json",
+    "total_cases": 300
+  },
+  "baseline_metrics": {
+    "FullCalibratorAdapter": {
+      "action_accuracy": 0.7533333333333333,
+      "risky_auto_exec_rate": 0.03546099290780142,
+      "false_over_caution_rate": 0.12149532710280374,
+      "verification_appropriateness": 0.7733333333333333,
+      "human_review_precision": 0.8040540540540541,
+      "human_review_recall": 0.8880597014925373,
+      "human_review_f1": 0.8439716312056738,
+      "composite_score": 0.8351690196858221,
+      "safe_auto_execute_accuracy": 0.7570093457943925
+    },
+    "KeywordRuleBaseline": {
+      "action_accuracy": 0.46,
+      "risky_auto_exec_rate": 0.7801418439716312,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.46,
+      "human_review_precision": 0.96875,
+      "human_review_recall": 0.23134328358208955,
+      "human_review_f1": 0.37349397590361444,
+      "composite_score": 0.5079645390070922,
+      "safe_auto_execute_accuracy": 1.0
+    },
+    "SafeKeywordFirstBaseline": {
+      "action_accuracy": 0.4166666666666667,
+      "risky_auto_exec_rate": 0.8723404255319149,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.4166666666666667,
+      "human_review_precision": 1.0,
+      "human_review_recall": 0.13432835820895522,
+      "human_review_f1": 0.2368421052631579,
+      "composite_score": 0.46108156028368796,
+      "safe_auto_execute_accuracy": 1.0
+    },
+    "RiskContextOracleBaseline": {
+      "action_accuracy": 0.51,
+      "risky_auto_exec_rate": 0.06382978723404255,
+      "false_over_caution_rate": 0.0,
+      "verification_appropriateness": 0.7733333333333333,
+      "human_review_precision": 0.946969696969697,
+      "human_review_recall": 0.9328358208955224,
+      "human_review_f1": 0.9398496240601504,
+      "composite_score": 0.7672092198581562,
+      "safe_auto_execute_accuracy": 1.0
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "action_accuracy": 0.7166666666666667,
+      "risky_auto_exec_rate": 0.0425531914893617,
+      "false_over_caution_rate": 0.12149532710280374,
+      "verification_appropriateness": 0.7366666666666667,
+      "human_review_precision": 0.8040540540540541,
+      "human_review_recall": 0.8880597014925373,
+      "human_review_f1": 0.8439716312056738,
+      "composite_score": 0.8132293033737654,
+      "safe_auto_execute_accuracy": 0.7570093457943925
+    }
+  }
+}

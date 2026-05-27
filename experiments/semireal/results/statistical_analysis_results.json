@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-27T15:51:54+0000",
+    "n_cases": 300,
+    "methods": [
+      "FullCalibratorAdapter",
+      "KeywordRuleBaseline",
+      "SafeKeywordFirstBaseline",
+      "RiskContextOracleBaseline"
+    ],
+    "reference_method": "FullCalibratorAdapter"
+  },
+  "bootstrap_ci": {
+    "FullCalibratorAdapter": {
+      "action_accuracy": {
+        "mean": 0.7033333333333334,
+        "ci_lower": 0.65,
+        "ci_upper": 0.7533333333333333
+      },
+      "composite_score": {
+        "mean": 0.7961540893662529,
+        "ci_lower": 0.7528691371530152,
+        "ci_upper": 0.8376955445544554
+      }
+    },
+    "KeywordRuleBaseline": {
+      "action_accuracy": {
+        "mean": 0.6,
+        "ci_lower": 0.5433333333333333,
+        "ci_upper": 0.6533333333333333
+      },
+      "composite_score": {
+        "mean": 0.648383317059562,
+        "ci_lower": 0.5919078844652615,
+        "ci_upper": 0.7026242044267123
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "action_accuracy": {
+        "mean": 0.6766666666666666,
+        "ci_lower": 0.6233333333333333,
+        "ci_upper": 0.73
+      },
+      "composite_score": {
+        "mean": 0.7698157809085413,
+        "ci_lower": 0.7252704402515723,
+        "ci_upper": 0.8137618216106726
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "action_accuracy": {
+        "mean": 0.6166666666666667,
+        "ci_lower": 0.56,
+        "ci_upper": 0.67
+      },
+      "composite_score": {
+        "mean": 0.7183642534988608,
+        "ci_lower": 0.6710799640610962,
+        "ci_upper": 0.7648415190359594
+      }
+    }
+  },
+  "mcnemar": {
+    "KeywordRuleBaseline": {
+      "chi2": 6.415517241379311,
+      "p_value": 0.7792294211741037,
+      "significant_005": false,
+      "contingency": {
+        "a": 123,
+        "b": 88,
+        "c": 57,
+        "d": 32
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "chi2": 0.4076086956521739,
+      "p_value": 0.999997526523872,
+      "significant_005": false,
+      "contingency": {
+        "a": 138,
+        "b": 73,
+        "c": 65,
+        "d": 24
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "chi2": 5.080078125,
+      "p_value": 0.8857648766339058,
+      "significant_005": false,
+      "contingency": {
+        "a": 134,
+        "b": 77,
+        "c": 51,
+        "d": 38
+      }
+    }
+  },
+  "per_category": {
+    "affective_pressure_trace": {
+      "accuracy": 0.6333333333333333,
+      "risky_auto_exec_rate": 0.13636363636363635,
+      "false_over_caution_rate": 0.2,
+      "composite_score": 0.7524242424242424,
+      "n_cases": 60
+    },
+    "tool_use_risk_trace": {
+      "accuracy": 0.75,
+      "risky_auto_exec_rate": 0.06666666666666667,
+      "false_over_caution_rate": 0.16,
+      "composite_score": 0.8320000000000001,
+      "n_cases": 80
+    },
+    "coding_agent_trace": {
+      "accuracy": 0.72,
+      "risky_auto_exec_rate": 0.10909090909090909,
+      "false_over_caution_rate": 0.1,
+      "composite_score": 0.8252727272727273,
+      "n_cases": 100
+    },
+    "safe_low_risk_trace": {
+      "accuracy": 0.65,
+      "risky_auto_exec_rate": 0.0,
+      "false_over_caution_rate": 0.25,
+      "composite_score": 0.785,
+      "n_cases": 40
+    },
+    "experience_failure_trace": {
+      "accuracy": 0.75,
+      "risky_auto_exec_rate": 0.08333333333333333,
+      "false_over_caution_rate": 0.5,
+      "composite_score": 0.725,
+      "n_cases": 20
+    }
+  }
+}

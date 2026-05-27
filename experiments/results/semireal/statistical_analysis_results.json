@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-27T15:55:56+0000",
+    "n_cases": 300,
+    "methods": [
+      "FullCalibratorAdapter",
+      "KeywordRuleBaseline",
+      "SafeKeywordFirstBaseline",
+      "RiskContextOracleBaseline",
+      "NoExperienceNoAffectiveBaseline"
+    ],
+    "reference_method": "FullCalibratorAdapter"
+  },
+  "bootstrap_ci": {
+    "FullCalibratorAdapter": {
+      "action_accuracy": {
+        "mean": 0.7533333333333333,
+        "ci_lower": 0.7033333333333334,
+        "ci_upper": 0.8
+      },
+      "composite_score": {
+        "mean": 0.8604071232621937,
+        "ci_lower": 0.8261218487394957,
+        "ci_upper": 0.8923522012578615
+      }
+    },
+    "KeywordRuleBaseline": {
+      "action_accuracy": {
+        "mean": 0.46,
+        "ci_lower": 0.4033333333333333,
+        "ci_upper": 0.5166666666666667
+      },
+      "composite_score": {
+        "mean": 0.5534029850746269,
+        "ci_lower": 0.5146666666666666,
+        "ci_upper": 0.5939803921568627
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "action_accuracy": {
+        "mean": 0.4166666666666667,
+        "ci_lower": 0.36,
+        "ci_upper": 0.47333333333333333
+      },
+      "composite_score": {
+        "mean": 0.5069651741293533,
+        "ci_lower": 0.47342528735632183,
+        "ci_upper": 0.5416062992125984
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "action_accuracy": {
+        "mean": 0.51,
+        "ci_lower": 0.4533333333333333,
+        "ci_upper": 0.5666666666666667
+      },
+      "composite_score": {
+        "mean": 0.7838507462686567,
+        "ci_lower": 0.7563333333333333,
+        "ci_upper": 0.8107619047619048
+      }
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "action_accuracy": {
+        "mean": 0.7166666666666667,
+        "ci_lower": 0.6666666666666666,
+        "ci_upper": 0.7666666666666667
+      },
+      "composite_score": {
+        "mean": 0.8435016506253779,
+        "ci_lower": 0.8080451095207113,
+        "ci_upper": 0.876070093457944
+      }
+    }
+  },
+  "mcnemar": {
+    "KeywordRuleBaseline": {
+      "chi2": 53.91725352112676,
+      "p_value": 5.0275238598275605e-08,
+      "significant_005": true,
+      "contingency": {
+        "a": 111,
+        "b": 115,
+        "c": 27,
+        "d": 47
+      }
+    },
+    "SafeKeywordFirstBaseline": {
+      "chi2": 66.01470588235294,
+      "p_value": 2.5912357954276377e-10,
+      "significant_005": true,
+      "contingency": {
+        "a": 99,
+        "b": 127,
+        "c": 26,
+        "d": 48
+      }
+    },
+    "RiskContextOracleBaseline": {
+      "chi2": 37.27836879432624,
+      "p_value": 5.064876393549724e-05,
+      "significant_005": true,
+      "contingency": {
+        "a": 119,
+        "b": 107,
+        "c": 34,
+        "d": 40
+      }
+    },
+    "NoExperienceNoAffectiveBaseline": {
+      "chi2": 10.022727272727273,
+      "p_value": 0.4385016086619268,
+      "significant_005": false,
+      "contingency": {
+        "a": 215,
+        "b": 11,
+        "c": 0,
+        "d": 74
+      }
+    }
+  },
+  "per_category": {
+    "affective_pressure_trace": {
+      "accuracy": 0.7166666666666667,
+      "risky_auto_exec_rate": 0.0,
+      "false_over_caution_rate": 0.0,
+      "composite_score": 0.8866666666666667,
+      "n_cases": 60
+    },
+    "tool_use_risk_trace": {
+      "accuracy": 0.8125,
+      "risky_auto_exec_rate": 0.044444444444444446,
+      "false_over_caution_rate": 0.04,
+      "composite_score": 0.8996666666666666,
+      "n_cases": 80
+    },
+    "coding_agent_trace": {
+      "accuracy": 0.69,
+      "risky_auto_exec_rate": 0.0,
+      "false_over_caution_rate": 0.26666666666666666,
+      "composite_score": 0.7959999999999999,
+      "n_cases": 100
+    },
+    "safe_low_risk_trace": {
+      "accuracy": 0.875,
+      "risky_auto_exec_rate": 0.0,
+      "false_over_caution_rate": 0.1,
+      "composite_score": 0.92,
+      "n_cases": 40
+    },
+    "experience_failure_trace": {
+      "accuracy": 0.7,
+      "risky_auto_exec_rate": 0.0,
+      "false_over_caution_rate": 0.0,
+      "composite_score": 0.8799999999999999,
+      "n_cases": 20
+    }
+  }
+}
