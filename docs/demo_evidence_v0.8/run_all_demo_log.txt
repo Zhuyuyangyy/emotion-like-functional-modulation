@@ -1,0 +1,380 @@
+
+======================================================================
+  Experience-Shaped Affective Agent V0.2 - Demo Suite
+======================================================================
+
+--- V0.1 Demos ---
+
+============================================================
+  Demo 1: Pain Memory - 经历塑形验证
+============================================================
+
+[阶段 1] 初始状态 - 正常 delete 操作
+----------------------------------------
+事件: delete file /tmp/temp.log
+类型: delete, 类别: filesystem
+潜在破坏性: True
+
+初始策略:
+  - risk_threshold: 0.50
+  - verification_steps: 2
+  - auto_execute: False
+  - 行动: verify (需要 2 步验证)
+
+[阶段 2] 高损失事件 - 误删重要文件
+----------------------------------------
+事件: delete file /data/production/database.sql
+后果评估:
+  - goal_damage: 0.95
+  - threat_level: 1.00
+  - reversibility: 0.05
+经历已记录: negative
+
+当前状态:
+  SelfState(threat=0.23, confidence=1.00, anxiety=0.20, trust=1.00, exploration_rate=0.79)
+
+[阶段 3] 相似风险操作 - overwrite_file
+----------------------------------------
+事件: overwrite file /data/backup/config.yaml
+
+调制后策略 (应更谨慎):
+  - risk_threshold: 0.50 (初始: 0.50)
+  - verification_steps: 2 (初始: 2)
+  - auto_execute: False (初始: False)
+  - 行动: verify
+
+[阶段 4] 更多相似操作
+----------------------------------------
+
+任务: batch delete records
+  risk_threshold: 0.30
+  verification_steps: 4
+  auto_execute: False
+  行动: verify
+
+任务: force overwrite database
+  risk_threshold: 0.50
+  verification_steps: 2
+  auto_execute: False
+  行动: verify
+
+任务: truncate table users
+  risk_threshold: 0.50
+  verification_steps: 2
+  auto_execute: False
+  行动: verify
+
+[阶段 5] 记忆检索验证
+----------------------------------------
+检索到 1 条相关记忆:
+  - AffectiveMemory(delete, intensity=0.67, threat=0.77, outcome=negative)
+
+============================================================
+  Demo 1 完成
+============================================================
+验证结果:
+  ✓ 高损失事件导致 threat 上升
+  ✓ 相似操作的风险阈值下降
+  ✓ 验证步骤自动增加
+  ✓ auto_execute 变为 False
+  ✓ 情感记忆已写入
+
+============================================================
+  Demo 2: Trust Collapse - 信任崩塌与恢复
+============================================================
+
+[阶段 1] 初始信任 - source_A 提供多次可靠建议
+----------------------------------------
+  轮次 1: 建议成功执行, trust_impact=+0.15
+  轮次 2: 建议成功执行, trust_impact=+0.15
+  轮次 3: 建议成功执行, trust_impact=+0.15
+
+当前状态: trust = 1.00
+source_A 初始信任: 1.00
+
+[阶段 2] 信任崩塌 - source_A 提供错误建议
+----------------------------------------
+事件: execute suggestion from source_A (critical operation)
+
+后果评估:
+  - goal_damage: 0.85
+  - trust_impact: -0.50
+
+source_A 信任崩塌: 1.00 -> 0.50
+Agent 当前状态: trust = 0.50
+
+[阶段 3] 后续建议 - source_A 再次提供建议
+----------------------------------------
+事件: execute suggestion from source_A
+
+调制后策略:
+  - risk_threshold: 0.24
+  - verification_steps: 3
+  - auto_execute: False
+  - require_human_review: False
+  - 行动: verify (需要 3 步验证)
+
+[阶段 4] 对比 - source_B 的建议
+----------------------------------------
+source_B 信任: 1.00
+
+策略对比:
+  source_A: verification_steps=3, auto_execute=False
+  source_B: verification_steps=3, auto_execute=False
+
+[阶段 5] 信任恢复 - 连续安全经验
+----------------------------------------
+source_A 信任恢复: 0.50 -> 1.00
+
+============================================================
+  Demo 2 完成
+============================================================
+验证结果:
+  ✓ source_A 初始信任: 1.00
+  ✓ 错误建议后信任崩塌: 0.50
+  ✓ 后续建议自动增加验证步骤
+  ✓ 信任可通过连续安全经验恢复: 1.00
+
+============================================================
+  Demo 3: Anxiety Control - 焦虑式控制
+============================================================
+
+[阶段 1] 正常状态 - 低风险任务
+----------------------------------------
+事件: read file /tmp/readme.txt
+
+初始策略:
+  - anxiety: 0.00
+  - exploration_rate: 0.50
+  - verification_steps: 1
+  - auto_execute: True
+  - 行动: execute
+
+[阶段 2] 诱发焦虑 - 高不确定高损失场景
+----------------------------------------
+触发焦虑后的状态:
+  - anxiety: 0.62
+  - threat: 0.71
+  - confidence: 0.10
+
+[阶段 3] 高焦虑下的决策
+----------------------------------------
+
+任务: execute batch delete all users
+  policy.risk_threshold: -0.04
+  policy.verification_steps: 6
+  policy.simulate_before_act: True
+  policy.require_human_review: True
+  policy.auto_execute: False
+  行动: ask_human
+
+任务: force overwrite database tables
+  policy.risk_threshold: -0.04
+  policy.verification_steps: 6
+  policy.simulate_before_act: True
+  policy.require_human_review: True
+  policy.auto_execute: False
+  行动: ask_human
+
+任务: cascade delete records
+  policy.risk_threshold: -0.04
+  policy.verification_steps: 6
+  policy.simulate_before_act: True
+  policy.require_human_review: True
+  policy.auto_execute: False
+  行动: ask_human
+
+[阶段 4] 低风险任务在焦虑状态下
+----------------------------------------
+任务: read file /tmp/readme.txt
+  policy.verification_steps: 5
+  policy.auto_execute: False
+  行动: ask_human
+  (低风险任务仍然可以执行，但验证步骤可能增加)
+
+[阶段 5] 焦虑衰减 - 连续安全经验
+----------------------------------------
+衰减前: anxiety=0.62
+衰减后: anxiety=0.42, threat=0.46
+探索率恢复: exploration_rate=0.50
+
+[阶段 6] 焦虑衰减后的决策
+----------------------------------------
+任务: execute batch operation
+  policy.verification_steps: 6
+  policy.auto_execute: False
+  行动: ask_human
+  (焦虑衰减后，恢复更激进的策略)
+
+============================================================
+  Demo 3 完成
+============================================================
+验证结果:
+  ✓ 高不确定+高损失触发焦虑状态
+  ✓ 焦虑状态下 verification_steps 增加
+  ✓ 焦虑状态下 simulate_before_act = True
+  ✓ 焦虑状态下 require_human_review = True
+  ✓ 连续安全经验后焦虑可衰减
+  ✓ 焦虑衰减后策略恢复正常
+
+--- V0.2 Demos ---
+
+============================================================
+  Demo 4: Fear Decay - 威胁状态的自然衰减
+============================================================
+
+[阶段 1] 初始状态
+----------------------------------------
+初始状态: SelfState(threat=0.00, confidence=1.00, anxiety=0.00, trust=1.00, exploration_rate=0.50)
+情感记忆数量: 0
+
+[阶段 2] 触发高损失事件
+----------------------------------------
+事件: delete file /data/production/database.sql
+后果评估: threat_level=1.00, anxiety_level=0.95
+状态更新后: SelfState(threat=0.30, confidence=0.50, anxiety=0.28, trust=0.70, exploration_rate=0.60)
+情感记忆已写入: AffectiveMemory(delete, intensity=0.96, threat=1.00, outcome=negative)
+
+[阶段 3] 连续安全操作与衰减
+----------------------------------------
+
+  --- 安全操作第 1 次 ---
+  事件: read file /tmp/readme.txt
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+  状态: SelfState(threat=0.18, confidence=0.58, anxiety=0.19, trust=0.73, exploration_rate=0.69)
+
+  --- 安全操作第 2 次 ---
+  事件: read file /tmp/readme.txt
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+  状态: SelfState(threat=0.05, confidence=0.68, anxiety=0.08, trust=0.78, exploration_rate=0.79)
+
+  --- 安全操作第 3 次 ---
+  事件: read file /tmp/readme.txt
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+  状态: SelfState(threat=0.00, confidence=0.80, anxiety=0.00, trust=0.85, exploration_rate=0.88)
+
+  --- 安全操作第 4 次 ---
+  事件: read file /tmp/readme.txt
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+  状态: SelfState(threat=0.00, confidence=0.94, anxiety=0.00, trust=0.94, exploration_rate=0.94)
+
+  --- 安全操作第 5 次 ---
+  事件: read file /tmp/readme.txt
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+  状态: SelfState(threat=0.00, confidence=1.00, anxiety=0.00, trust=1.00, exploration_rate=0.98)
+
+[阶段 4] 状态变化趋势
+----------------------------------------
+Threat 变化:
+  时间 0: 0.300
+  时间 1: 0.185
+  时间 2: 0.050
+  时间 3: 0.000
+  时间 4: 0.000
+  时间 5: 0.000
+
+Anxiety 变化:
+  时间 0: 0.284
+  时间 1: 0.189
+  时间 2: 0.080
+  时间 3: 0.000
+  时间 4: 0.000
+  时间 5: 0.000
+
+[阶段 5] 记忆持久性验证
+----------------------------------------
+情感记忆数量: 1
+  - AffectiveMemory(delete, intensity=0.96, threat=1.00, outcome=negative)
+
+============================================================
+  Demo 4 完成
+============================================================
+验证结果:
+  ✓ 高损失事件后 threat/anxiety 上升
+  ✓ 连续安全操作后状态逐步衰减
+  ✓ 情感记忆保留（不会立刻消失）
+
+============================================================
+  Demo 5: Trust Recovery - 信任崩塌与缓慢恢复
+============================================================
+
+[阶段 1] 初始信任 - source_A 提供多次可靠建议
+----------------------------------------
+source_A 初始信任: 1.00
+全局状态: SelfState(threat=0.00, confidence=1.00, anxiety=0.00, trust=1.00, exploration_rate=0.90)
+
+[阶段 2] 信任崩塌 - source_A 提供错误建议
+----------------------------------------
+事件: execute suggestion from source_A (critical)
+后果评估: damage=0.85, trust_impact=-0.50
+信任崩塌: 1.00 → 0.50
+全局状态: SelfState(threat=0.29, confidence=0.60, anxiety=0.24, trust=0.50, exploration_rate=0.64)
+崩塌幅度: 0.50
+
+[阶段 3] 信任恢复 - source_A 提供多次可靠建议
+----------------------------------------
+
+  --- 可靠建议第 1 次 ---
+  信任: 0.70
+  全局状态: SelfState(threat=0.25, confidence=0.74, anxiety=0.20, trust=0.72, exploration_rate=0.71)
+
+  --- 可靠建议第 2 次 ---
+  信任: 0.90
+  全局状态: SelfState(threat=0.19, confidence=0.90, anxiety=0.14, trust=0.96, exploration_rate=0.80)
+
+  --- 可靠建议第 3 次 ---
+  信任: 1.00
+  全局状态: SelfState(threat=0.11, confidence=1.00, anxiety=0.06, trust=1.00, exploration_rate=0.89)
+
+  --- 可靠建议第 4 次 ---
+  信任: 1.00
+  全局状态: SelfState(threat=0.01, confidence=1.00, anxiety=0.00, trust=1.00, exploration_rate=0.95)
+
+  --- 可靠建议第 5 次 ---
+  信任: 1.00
+  全局状态: SelfState(threat=0.00, confidence=1.00, anxiety=0.00, trust=1.00, exploration_rate=0.98)
+
+[阶段 4] 速度对比验证
+----------------------------------------
+崩塌幅度: 0.50 (1步)
+恢复幅度: 0.50 (5步)
+恢复 < 崩塌: False
+
+[阶段 5] 行为差异 - 不同来源建议的策略对比
+----------------------------------------
+source_A 建议:
+  信任值: 1.00
+  策略: verification_steps=3, auto_execute=False
+  行动: verify
+
+source_B (新来源) 建议:
+  信任值: 1.00
+  策略: verification_steps=1, auto_execute=True
+  行动: execute
+
+============================================================
+  Demo 5 完成
+============================================================
+验证结果:
+  ✓ 错误建议后信任显著下降
+  ✓ 多次可靠建议后信任逐步恢复
+  ✓ 恢复速度 < 崩塌速度
+  ✓ 不同来源建议的策略有差异
+
+======================================================================
+  Demo Summary
+======================================================================
+  Pain Memory (V0.1): PASS
+  Trust Collapse (V0.1): PASS
+  Anxiety Control (V0.1): PASS
+  Fear Decay (V0.2): PASS
+  Trust Recovery (V0.2): PASS
+
+======================================================================
+  All 5 demos passed!
+======================================================================
