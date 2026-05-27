@@ -140,7 +140,7 @@ class LearningAdaptation:
     ) -> None:
         """Create a new learned rule."""
         rule_id = f"rule_{len(self._rules) + 1}"
-        initial_confidence = 0.5 + (outcome_valence * 0.2)
+        initial_confidence = 0.5 + (outcome_valence * 0.3)
         
         rule = LearnedRule(
             id=rule_id,

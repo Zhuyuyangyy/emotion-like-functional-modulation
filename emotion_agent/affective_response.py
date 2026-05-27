@@ -154,9 +154,11 @@ class AffectiveResponse:
         """
         if len(templates) == 0:
             return 0
+        if len(templates) == 1:
+            return 0
         
         # Create deterministic hash from inputs
-        hash_input = f"{context}_{valence:.4f}_{arousal:.4f}"
+        hash_input = f"{context}_{valence:.4f}_{arousal:.4f}_{len(templates)}"
         hash_value = self._string_hash(hash_input)
         
         return hash_value % len(templates)
