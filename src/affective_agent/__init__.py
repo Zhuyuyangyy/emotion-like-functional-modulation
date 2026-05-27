@@ -14,6 +14,7 @@ V0.6: Benchmark 与消融实验
 V0.7: Phoenix-Evo / AgentShield 融合
 V0.8: 完整系统封版
 V0.9: AffectiveBench 正式实验
+V0.9.1: 安全操作校准补丁
 """
 
 from .agent_core import AffectiveAgent, ActionResult
@@ -64,6 +65,8 @@ from .benchmark_metrics import (
 )
 from .benchmark_runner import BenchmarkRunner
 from .benchmark_reporter import BenchmarkReporter
+
+from .safe_action_calibrator import SafeActionCalibrator, CalibrationResult
 
 __all__ = [
     "AffectiveAgent",
@@ -120,4 +123,6 @@ __all__ = [
     "AggregateMetrics",
     "BenchmarkRunner",
     "BenchmarkReporter",
+    "SafeActionCalibrator",
+    "CalibrationResult",
 ]

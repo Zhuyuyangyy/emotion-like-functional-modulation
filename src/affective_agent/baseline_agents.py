@@ -16,6 +16,7 @@ from enum import Enum
 from .agent_core import AffectiveAgent
 from .event_parser import ParsedEvent
 from .policy_modulator import ActionPolicy
+from .safe_action_calibrator import SafeActionCalibrator
 
 
 @dataclass
@@ -308,10 +309,14 @@ class FullAffectiveAgent(BaselineAgent):
     def __init__(self) -> None:
         self._agent = AffectiveAgent()
         self._case_counter: int = 0
+        self._calibrator = SafeActionCalibrator()
+        self._prev_cal_reason: str = ""
 
     def reset(self) -> None:
         self._agent = AffectiveAgent()
         self._case_counter = 0
+        self._calibrator = SafeActionCalibrator()
+        self._prev_cal_reason = ""
 
     def process_event(self, event_description: str) -> AgentResult:
         self._case_counter += 1
@@ -330,7 +335,24 @@ class FullAffectiveAgent(BaselineAgent):
             parsed_event, task=event_description
         )
 
+        calibration = self._calibrator.calibrate(
+            event_description, policy, parsed_event
+        )
+
+        if calibration.calibrated:
+            self._calibrator.apply_calibration(policy, calibration)
+
+        if (policy.auto_execute
+                and self._prev_cal_reason == "destructive_keywords_enforced"
+                and calibration.reason == "clearly_safe_readonly"):
+            policy.auto_execute = False
+            policy.verification_steps = max(policy.verification_steps, 1)
+
+        self._prev_cal_reason = calibration.reason
+
         action_taken = action.action_type.value
+        if policy.auto_execute:
+            action_taken = "execute"
         auto_executed = policy.auto_execute
         verification_steps = policy.verification_steps
         risk_threshold = policy.risk_threshold
