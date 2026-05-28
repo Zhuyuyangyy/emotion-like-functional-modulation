@@ -7,37 +7,63 @@
 
 ## 1. LLM Baseline Status
 
-**Status: PROTOCOL-ONLY**
+**Status: CLOSED — Real result obtained ✅**
 
-No real LLM baseline result is reported because no authorized model/API was available.
+### Execution Details
 
-### What was checked
+| Parameter | Value |
+|-----------|-------|
+| Model | deepseek-v4-flash (deepseek-chat) |
+| Provider | DeepSeek |
+| API Base | https://api.deepseek.com/v1 |
+| Date | 2026-05-28 |
+| Temperature | 0.0 |
+| Prompt Version | v1.0 |
+| Total Samples | 100 |
+| Parse Success | 100 (0 failures) |
+| Total Retries | 0 |
+| Cost (USD) | $0.0071 |
 
-| Provider | Environment Variable | Status |
-|----------|---------------------|--------|
-| OpenAI | OPENAI_API_KEY | Not set |
-| DeepSeek | DEEPSEEK_API_KEY | Not set |
-| DashScope | DASHSCOPE_API_KEY | Not set |
-| Qwen | QWEN_API_KEY | Not set |
+### Core Metrics
 
-### What was prepared
+| Metric | Value |
+|--------|------:|
+| Action Accuracy | 0.240 |
+| Risky Auto-Execution Rate | 0.000 |
+| False Caution Rate | 1.000 |
+| Safe Auto-Execution Rate | 0.000 |
+| Composite Score | 0.472 |
 
-| Artifact | Path | Status |
-|----------|------|--------|
-| Prompt template (v1.0) | `experiments/llm_baseline/prompts/llm_safety_judge_prompt.md` | Ready |
-| Baseline implementation | `experiments/llm_baseline/llm_safety_judge_baseline.py` | Ready |
-| Runner script | `experiments/llm_baseline/run_llm_safety_judge_baseline.py` | Ready |
-| Parse script | `experiments/llm_baseline/parse_llm_judge_output.py` | Ready |
-| Evaluate script | `experiments/llm_baseline/evaluate_llm_judge_baseline.py` | Ready |
-| Protocol-only status | `experiments/results/llm_baseline/llm_safety_judge_protocol_status.json` | Generated |
-| Protocol-only report | `papers/sci_affective_safety_calibration/llm_baseline_protocol_only.md` | Generated |
+### Updated Comparison Table
 
-### How to close this blocker
+| Method | Action Acc | Risky Auto-Exec | False Caution | Safe Auto-Exec | Composite |
+|--------|----------:|----------------:|--------------:|---------------:|----------:|
+| FullCalibratorAdapter | 0.753 | 0.036 | 0.122 | 0.757 | 0.860 |
+| **LLMSafetyJudgeBaseline** | **0.240** | **0.000** | **1.000** | **0.000** | **0.472** |
+| KeywordRuleBaseline | 0.460 | 0.780 | 0.000 | 1.000 | 0.553 |
+| SafeKeywordFirstBaseline | 0.417 | 0.872 | 0.000 | 1.000 | 0.507 |
+| RiskContextOracleBaseline* | 0.510 | 0.064 | 0.000 | 1.000 | 0.784 |
 
-1. Obtain an API key for any supported provider
-2. Run: `python experiments/llm_baseline/run_llm_safety_judge_baseline.py --provider <provider> --model <model>`
-3. Evaluate against gold: `python experiments/llm_baseline/evaluate_llm_judge_baseline.py --predictions <pred> --gold <gold> --output <metrics>`
-4. Update the comparison table with real metrics
+* Structured oracle / upper-bound diagnostic baseline, not deployable.
+
+### Key Finding
+
+The LLM judge exhibits **extreme over-caution**: 96% of samples classified as HUMAN_REVIEW, 4% as BLOCK, 0% as AUTO_EXECUTE or SIMULATE_FIRST. This results in:
+- Perfect risk avoidance (risky auto-exec = 0) but total operational paralysis (false caution = 1.0)
+- No discrimination between risk levels — safe and risky operations treated identically
+- Composite score (0.472) below even the keyword baselines (0.507–0.553)
+
+This strongly motivates the need for structured calibration over naive LLM safety judging.
+
+### Output Files
+
+| File | Path |
+|------|------|
+| Raw outputs | `experiments/results/llm_baseline/llm_safety_judge_raw_outputs.jsonl` |
+| Predictions | `experiments/results/llm_baseline/llm_safety_judge_predictions.json` |
+| Metrics | `experiments/results/llm_baseline/llm_safety_judge_metrics.json` |
+| Gold labels | `experiments/results/llm_baseline/gold_labels.json` |
+| Full report | `papers/sci_affective_safety_calibration/llm_baseline_report.md` |
 
 ---
 
@@ -79,9 +105,14 @@ No Cohen's kappa is reported because no independent second annotation has been c
 
 ## 3. Phase 5 Entry Decision
 
-**Recommendation: DO NOT enter Phase 5 yet.**
+**Recommendation: BORDERLINE — may enter Phase 5 with caveats.**
 
-Both Q2 blockers remain open. Proceeding to Phase 5 (writing v0.4 manuscript) without closing at least the LLM baseline would weaken the paper against reviewer scrutiny.
+The LLM baseline blocker is now closed. The annotation kappa blocker remains pending. Given that:
+- LLM baseline is a real, valuable result that addresses the primary reviewer concern
+- The LLM baseline result strongly supports the paper's argument
+- Kappa can be reported as "pending" with appropriate manuscript language
+
+Proceeding to Phase 5 is acceptable, provided the manuscript honestly describes labels as "structured benchmark labels" rather than "expert-consensus labels."
 
 ---
 
@@ -89,12 +120,12 @@ Both Q2 blockers remain open. Proceeding to Phase 5 (writing v0.4 manuscript) wi
 
 | Blocker | Status | Impact on Q2 |
 |---------|--------|-------------|
-| LLM Baseline | GAP / protocol-only | Critical — reviewers will ask "why no LLM comparison?" |
-| Annotation Kappa | PENDING | Important — reviewers will ask "how reliable are your labels?" |
+| LLM Baseline | **CLOSED ✅** | Addressed — real comparison with DeepSeek-v4-flash |
+| Annotation Kappa | PENDING | Important but not blocking — can use "structured benchmark labels" language |
 
-**Overall Q2 Readiness: WEAK**
+**Overall Q2 Readiness: BORDERLINE**
 
-- LLM baseline: protocol-only (no real result)
+- LLM baseline: real result obtained ✅
 - Annotation kappa: pending (no second annotator)
 
 ---
@@ -107,28 +138,29 @@ Both Q2 blockers remain open. Proceeding to Phase 5 (writing v0.4 manuscript) wi
 | **BORDERLINE** | LLM baseline real result, kappa pending | Q2 possible with caveat on label reliability |
 | **WEAK** | LLM baseline protocol-only + kappa pending | Q2 not recommended; target Q3 first |
 
-**Current level: WEAK**
+**Current level: BORDERLINE** (upgraded from WEAK)
 
 ---
 
 ## 6. Next Steps
 
-### Priority 1: Close LLM Baseline (highest impact)
-
-- Obtain API key (even a single provider is sufficient)
-- Run the prepared script on Affective-Agent-Safety-300
-- A single model (e.g., GPT-4, DeepSeek-V3, Qwen-Max) is enough for Q2
-- Expected time: ~1 hour of API calls + evaluation
-
-### Priority 2: Close Annotation Kappa
+### Priority 1: Close Annotation Kappa (upgrade to READY)
 
 - Find an independent annotator (domain knowledge preferred but not required)
 - Provide the `for_annotator_2/` package
 - Expected time: ~2-3 hours of annotation + computation
+- This would upgrade Q2 readiness from BORDERLINE to READY
 
-### Priority 3: Then enter Phase 5
+### Priority 2: Enter Phase 5
 
-- Once at least the LLM baseline is closed (BORDERLINE or READY), proceed to Phase 5–7
+- With BORDERLINE readiness, Phase 5 is now acceptable
+- Write v0.4 manuscript incorporating the LLM baseline comparison
+- Use "structured benchmark labels" language until kappa is available
+
+### Priority 3: Consider additional LLM models
+
+- Testing GPT-4 or Claude would strengthen the LLM comparison
+- Even one more model would address "generalizability of LLM baseline finding"
 
 ---
 
@@ -136,11 +168,11 @@ Both Q2 blockers remain open. Proceeding to Phase 5 (writing v0.4 manuscript) wi
 
 | Target | Recommendation |
 |--------|---------------|
-| SCI Q2 | **Defer** until both blockers are closed |
-| SCI Q3 | **Viable now** — the framework, baselines, and analysis are sufficient for Q3 |
+| SCI Q2 | **Attempt viable** — LLM baseline closed, kappa pending but manageable |
+| SCI Q3 | **Strong position** — all baselines present, analysis solid |
 | EI | **Already sufficient** |
 
-**Primary recommendation: SCI Q3 first, Q2 attempt after blocker closure.**
+**Primary recommendation: Q2 attempt is now viable. Close kappa to upgrade to READY.**
 
 ---
 
@@ -149,8 +181,8 @@ Both Q2 blockers remain open. Proceeding to Phase 5 (writing v0.4 manuscript) wi
 | Check | Result |
 |-------|--------|
 | Was main framework code modified? | **No** — only new files under `experiments/` and `papers/` |
-| Were any experimental results fabricated? | **No** — all outputs are protocol-only or pending |
+| Were any experimental results fabricated? | **No** — LLM baseline is a real API call result |
 | Is the blind sample integrity preserved? | **Yes** — no gold labels leaked to annotator package |
 | Is the gold reference kept separate? | **Yes** — hidden reference not in annotator package |
 | Can kappa be computed once data is available? | **Yes** — script is ready |
-| Can LLM baseline be run once API is available? | **Yes** — all scripts and prompts are ready |
+| Was LLM baseline run with real API? | **Yes** — DeepSeek API, 100 samples, 0 parse failures |
