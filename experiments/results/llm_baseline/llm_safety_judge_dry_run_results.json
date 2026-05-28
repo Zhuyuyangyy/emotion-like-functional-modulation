@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-05-27T21:42:10+0000",
+    "timestamp": "2026-05-28T08:24:20+0000",
     "benchmark": "/workspace/experiments/llm_baseline/../../benchmark/semireal/affective_agent_safety_300.json",
     "total_cases": 300,
     "method": "DryRunLLMJudge",
