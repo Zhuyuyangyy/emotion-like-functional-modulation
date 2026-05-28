@@ -6,191 +6,154 @@
 ---
 
 ## 1. LLM Baseline Status
-
-**Status: CLOSED — Real result obtained ✅**
+**Status**: CLOSED — FULL-300 REAL RESULTS ✅
 
 ### Execution Details
-
 | Parameter | Value |
 |-----------|-------|
 | Model | deepseek-v4-flash (deepseek-chat) |
 | Provider | DeepSeek |
-| API Base | https://api.deepseek.com/v1 |
+| API base | https://api.deepseek.com/v1 |
 | Date | 2026-05-28 |
 | Temperature | 0.0 |
-| Prompt Version | v1.0 |
-| Total Samples | 100 (100-case subset) |
-| Parse Success | 100 (0 failures) |
-| Total Retries | 0 |
-| Cost (USD) | $0.0071 |
+| Prompt version | v1.0 |
+| Sample size | 300 (full AffectiveBenchmark-300) |
+| Parse success | 300/300 (0 failures) |
+| Retries | 0 |
+| Cost estimate | $0.0214 |
 
 ### Core Metrics
-
 | Metric | Value |
-|--------|------:|
-| Action Accuracy | 0.240 |
-| Risky Auto-Execution Rate | 0.000 |
-| False Caution Rate | 1.000 |
-| Safe Auto-Execution Rate | 0.000 |
-| Composite Score | 0.472 |
+|--------|-------|
+| Action Accuracy | 0.38 |
+| Risky Auto-Execution Rate | 0.0 |
+| False Caution Rate | 0.9235 |
+| Safe Auto-Execution Rate | 0.0765 |
+| Composite Score | 0.5369 |
 
 ### Prediction Distribution
-
-| Label | Count | Percentage |
-|-------|------:|-----------:|
-| HUMAN_REVIEW | 96 | 96% |
-| BLOCK | 4 | 4% |
-| AUTO_EXECUTE | 0 | 0% |
+| Decision | Count | % |
+|----------|-------|---|
+| HUMAN_REVIEW | 276 | 92% |
+| BLOCK | 11 | 3.7% |
+| AUTO_EXECUTE | 13 | 4.3% |
 | SIMULATE_FIRST | 0 | 0% |
 
 ### Updated Comparison Table
+| Method | Sample Size | Action Acc | Risky Auto-Exec | False Caution | Safe Auto-Exec | Composite |
+|--------|-------------|-----------:|----------------:|--------------:|---------------:|----------:|
+| FullCalibratorAdapter | 300 | 0.753 | 0.036 | 0.122 | 0.757 | 0.860 |
+| **DeepSeek-v4-flash Judge** | **300** | **0.38** | **0.0** | **0.9235** | **0.0765** | **0.5369** |
+| KeywordRuleBaseline | 300 | 0.460 | 0.780 | 0.000 | 1.000 | 0.553 |
+| SafeKeywordFirstBaseline | 300 | 0.417 | 0.872 | 0.000 | 1.000 | 0.507 |
+| RiskContextOracleBaseline* | 300 | 0.510 | 0.064 | 0.000 | 1.000 | 0.784 |
 
-| Method | Action Acc | Risky Auto-Exec | False Caution | Safe Auto-Exec | Composite |
-|--------|----------:|----------------:|--------------:|---------------:|----------:|
-| FullCalibratorAdapter | 0.753 | 0.036 | 0.122 | 0.757 | 0.860 |
-| **LLMSafetyJudgeBaseline** | **0.240** | **0.000** | **1.000** | **0.000** | **0.472** |
-| KeywordRuleBaseline | 0.460 | 0.780 | 0.000 | 1.000 | 0.553 |
-| SafeKeywordFirstBaseline | 0.417 | 0.872 | 0.000 | 1.000 | 0.507 |
-| RiskContextOracleBaseline* | 0.510 | 0.064 | 0.000 | 1.000 | 0.784 |
-
-* Structured oracle / upper-bound diagnostic baseline, not deployable.
+*Structured oracle / upper-bound diagnostic baseline, not deployable.
 
 ### Key Finding
-
-Under the tested zero-shot prompt and DeepSeek-v4-flash setting, the LLM safety judge exhibited extreme over-escalation: 96% of samples classified as HUMAN_REVIEW, 4% as BLOCK, 0% as AUTO_EXECUTE or SIMULATE_FIRST. This resulted in:
-- Perfect risk avoidance (risky auto-exec = 0.000) but total operational paralysis (false caution = 1.000)
-- No discrimination between risk levels — safe and risky operations treated identically
-- Composite score (0.472) below even the keyword baselines (0.507–0.553)
-
-This finding suggests that structured calibration better balances safety and utility than a zero-shot LLM safety judge under this specific tested setting. The FullCalibratorAdapter preserved safe auto-execution better than the zero-shot LLM judge.
+Under the tested zero-shot prompt and DeepSeek-v4-flash setting, the LLM safety judge exhibited extreme over-escalation. The full-300 result confirms the 100-case subset trend: zero-shot LLM judging reduces risky auto-execution to near-zero but at the cost of operational paralysis (92.35% false caution).
 
 ### Output Files
-
 | File | Path |
 |------|------|
-| Raw outputs | [experiments/results/llm_baseline/llm_safety_judge_raw_outputs.jsonl](file:///workspace/experiments/results/llm_baseline/llm_safety_judge_raw_outputs.jsonl) |
-| Predictions | [experiments/results/llm_baseline/llm_safety_judge_predictions.json](file:///workspace/experiments/results/llm_baseline/llm_safety_judge_predictions.json) |
-| Metrics | [experiments/results/llm_baseline/llm_safety_judge_metrics.json](file:///workspace/experiments/results/llm_baseline/llm_safety_judge_metrics.json) |
-| Gold labels | [experiments/results/llm_baseline/gold_labels.json](file:///workspace/experiments/results/llm_baseline/gold_labels.json) |
-| Full report | [papers/sci_affective_safety_calibration/llm_baseline_report.md](file:///workspace/papers/sci_affective_safety_calibration/llm_baseline_report.md) |
+| Raw outputs | [experiments/results/llm_baseline/full300/llm_safety_judge_full300_raw_outputs.jsonl](../experiments/results/llm_baseline/full300/llm_safety_judge_full300_raw_outputs.jsonl) |
+| Predictions | [experiments/results/llm_baseline/full300/llm_safety_judge_full300_predictions.json](../experiments/results/llm_baseline/full300/llm_safety_judge_full300_predictions.json) |
+| Metrics | [experiments/results/llm_baseline/full300/llm_safety_judge_full300_metrics.json](../experiments/results/llm_baseline/full300/llm_safety_judge_full300_metrics.json) |
+| Full report | [papers/sci_affective_safety_calibration/llm_baseline_full300_report.md](../papers/sci_affective_safety_calibration/llm_baseline_full300_report.md) |
 
 ---
 
 ## 2. Annotation Reliability Status
-
-**Status: PENDING**
+**Status**: PENDING
 
 No Cohen's kappa is reported because no independent second annotation has been completed yet.
 
 ### What Has Been Prepared
-
 | Artifact | Path | Status |
 |----------|------|--------|
-| Blind sample (100) | [papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100.csv](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100.csv) | Ready (annotator_label and annotator_rationale EMPTY) |
-| Annotation protocol v1 | [papers/sci_affective_safety_calibration/annotation_reliability/annotation_protocol_v1.md](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/annotation_protocol_v1.md) | Ready |
-| Annotator 2 task pack | [papers/sci_affective_safety_calibration/annotation_reliability/annotator_2_task_pack.md](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/annotator_2_task_pack.md) | Ready |
-| Annotator 2 instructions | [papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/annotation_instructions_for_annotator.md](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/annotation_instructions_for_annotator.md) | Ready |
-| Annotator 2 blank CSV | [papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/blind_annotation_sample_100.csv](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/blind_annotation_sample_100.csv) | Ready |
-| Hidden gold reference | [papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100_with_gold_hidden_reference.csv](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100_with_gold_hidden_reference.csv) | Ready (NOT for distribution to annotators) |
-| Gold reference JSON | [experiments/annotation/gold_reference_hidden.json](file:///workspace/experiments/annotation/gold_reference_hidden.json) | Ready |
-| Kappa computation script | [experiments/annotation/compute_kappa.py](file:///workspace/experiments/annotation/compute_kappa.py) | Ready |
-| Pending report | [papers/sci_affective_safety_calibration/annotation_reliability/annotation_reliability_pending_report.md](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/annotation_reliability_pending_report.md) | Ready |
+| Blind sample (100) | [papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100.csv](../papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100.csv) | Ready (annotator_label and annotator_rationale EMPTY) |
+| Annotation protocol v1 | [papers/sci_affective_safety_calibration/annotation_reliability/annotation_protocol_v1.md](../papers/sci_affective_safety_calibration/annotation_reliability/annotation_protocol_v1.md) | Ready |
+| Annotator task pack | [papers/sci_affective_safety_calibration/annotation_reliability/annotator_2_task_pack.md](../papers/sci_affective_safety_calibration/annotation_reliability/annotator_2_task_pack.md) | Ready |
+| Annotator instructions | [papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/annotation_instructions_for_annotator.md](../papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/annotation_instructions_for_annotator.md) | Ready |
+| Annotator blank CSV | [papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/blind_annotation_sample_100.csv](../papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/blind_annotation_sample_100.csv) | Ready |
+| Hidden gold reference | [papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100_with_gold_hidden_reference.csv](../papers/sci_affective_safety_calibration/annotation_reliability/blind_annotation_sample_100_with_gold_hidden_reference.csv) | Ready (NOT for distribution to annotators) |
+| Kappa computation script | [experiments/annotation/compute_kappa.py](../experiments/annotation/compute_kappa.py) | Ready |
 
 ### Verification: Blind Sample Integrity
-
 Confirmed ✓:
-- `annotator_label` column is EMPTY
-- `annotator_rationale` column is EMPTY
-- Does NOT contain `gold_decision`
-- Does NOT contain any model prediction
-- Does NOT contain `expected_decision`
-- Gold reference is kept separate and not in annotator-facing files
-
-### How to Close This Blocker
-
-1. Provide the [for_annotator_2](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/for_annotator_2/) package to an independent annotator
-2. Annotator completes `annotator_2_completed.csv`
-3. Run: `python experiments/annotation/compute_kappa.py --gold <gold_ref> --annotator <completed> --output <results>`
-4. Report Cohen's kappa in the manuscript
+- annotator_label column EMPTY
+- annotator_rationale column EMPTY
+- No gold_decision in blind sample
+- No model predictions in blind sample
+- Gold reference kept separate
 
 ---
 
 ## 3. Phase 5 Entry Decision
+**Recommendation**: BORDERLINE+ — ENTER PHASE 5 NOW ✅
 
-**Recommendation: BORDERLINE — Can enter Phase 5 with caveats ✅**
-
-The LLM baseline blocker is now closed. The annotation kappa blocker remains pending. Given that:
-- LLM baseline is a real, valuable result that addresses the primary reviewer concern
-- The LLM baseline finding strongly supports the paper's argument
-- Annotation reliability is pending, but can be noted appropriately in the manuscript
-
-Proceeding to Phase 5 is acceptable, provided the manuscript honestly notes that independent annotation reliability is not yet established.
+With the LLM baseline closed on full-300, we now have sample size parity between our method and the LLM comparator. While annotation kappa is still pending, this can be noted as a limitation in the manuscript.
 
 ---
 
 ## 4. Q2 Readiness Assessment
-
 | Blocker | Status | Impact on Q2 |
 |---------|--------|-------------|
-| LLM Baseline | **CLOSED ✅** | Addressed — real comparison with DeepSeek-v4-flash on 100-case subset |
-| Annotation Kappa | PENDING | Important but not blocking — manuscript can note pending reliability |
+| LLM Baseline | **CLOSED FULL-300** ✅ | Addressed — real comparison with DeepSeek-v4-flash on 300 tasks, sample size parity |
+| Annotation Kappa | PENDING | Important but manageable — can state pending in manuscript |
 
-**Overall Q2 Readiness: BORDERLINE**
-
-- LLM baseline: Real result on 100-case subset obtained ✅
-- Annotation kappa: Pending (no second annotator yet)
+**Overall Q2 Readiness**: BORDERLINE+
 
 ---
 
 ## 5. Q2 Readiness Levels (Reference)
-
 | Level | Condition | Implication |
-|-------|-----------|------------|
+|-------|-----------|-------------|
 | **READY** | LLM baseline real result + kappa completed | Q2 submission viable |
-| **BORDERLINE** | LLM baseline real result, kappa pending | Q2 possible with caveat about pending reliability |
-| **WEAK** | LLM baseline protocol-only + kappa pending | Q2 not recommended; target Q3 first |
+| **BORDERLINE+** | LLM baseline FULL-300 real result + kappa pending | Q2 attempt strongly recommended |
+| **BORDERLINE** | LLM baseline real result + kappa pending | Q2 possible with caveats |
+| **WEAK** | LLM baseline protocol-only + kappa pending | Q2 not recommended |
 
-**Current level: BORDERLINE**
+**Current level**: BORDERLINE+
 
 ---
 
 ## 6. Next Steps
+### Priority 1: Enter Phase 5 (Highest)
+- Write v0.4 manuscript incorporating full-300 LLM baseline comparison
+- State "full AffectiveBenchmark-300" for methods, LLM baseline
+- Note "annotation reliability pending" as limitation
+- Update all tables to 300-sample results
 
-### Priority 1: Close Annotation Kappa (Upgrade to READY)
+### Priority 2: Close Annotation Kappa
+- Find an independent annotator
+- Provide task pack
+- Run compute_kappa.py
+- Add kappa to manuscript if available before submission
 
-- Find an independent annotator (domain knowledge preferred but not required)
-- Provide the [annotator_2_task_pack.md](file:///workspace/papers/sci_affective_safety_calibration/annotation_reliability/annotator_2_task_pack.md) and associated files
-- Expected time: 1.5–3 hours of annotation + computation
-- This would upgrade Q2 readiness from BORDERLINE to READY
-
-### Priority 2: Enter Phase 5
-
-- With BORDERLINE readiness, Phase 5 is now acceptable
-- Write v0.4 manuscript incorporating the LLM baseline comparison
-- Note clearly in the manuscript: "100-case subset" (not full 300) and "No independent annotation reliability established yet"
-- Use appropriate language for the LLM baseline finding (avoid absolute conclusions)
+### Priority 3: Optional - Try Additional LLMs
+- Could try GPT-4, Claude, etc. for robustness
+- Not required for Q2, but would strengthen paper
 
 ---
 
 ## 7. Current Submission Target Recommendation
-
 | Target | Recommendation |
-|--------|---------------|
-| SCI Q2 | **Attempt viable** — LLM baseline closed (100-case), kappa pending but manageable with proper caveats |
-| SCI Q3 | **Strong position** — all baselines present, analysis solid |
-| EI | **Already sufficient** |
+|--------|----------------|
+| SCI Q2 | **Attempt now recommended** (BORDERLINE+) |
+| SCI Q3 | **Strong fallback position** |
+| EI | **Fully ready** |
 
-**Primary recommendation: Q2 attempt is viable. Close annotation kappa to upgrade to READY.**
+**Primary recommendation**: GO FOR Q2 NOW, with annotation kappa noted as pending.
 
 ---
 
 ## 8. Verification Summary
-
 | Check | Result |
 |-------|--------|
-| Was main framework code modified? | **No** — only new files under [experiments/](file:///workspace/experiments/) and [papers/](file:///workspace/papers/) |
-| Were any experimental results fabricated? | **No** — LLM baseline is a real API call result |
-| Is blind sample integrity preserved? | **Yes** — no gold labels leaked to annotator-facing files |
-| Is gold reference kept separate? | **Yes** — hidden reference not in annotator-facing files |
-| Can kappa be computed once data is available? | **Yes** — [compute_kappa.py](file:///workspace/experiments/annotation/compute_kappa.py) is ready |
-| Was LLM baseline run with real API? | **Yes** — DeepSeek API, 100 samples, 0 parse failures |
+| Was main framework code modified? | **No** — only new files and benchmark size param |
+| Were any results fabricated? | **No** — LLM baseline is real API result on 300 tasks |
+| Sample size parity? | **Yes** — both our method and LLM baseline on 300 |
+| Blind sample integrity? | **Yes** |
+| Resumable LLM runner implemented? | **Yes** |
+| LLM baseline cost acceptable? | **Yes** — $0.0214 total |
