@@ -1,0 +1,7 @@
+{
+  "status": "protocol_only",
+  "reason": "No API key available for openai",
+  "provider": "openai",
+  "model": "gpt-4",
+  "timestamp": "2026-05-28T08:44:59.748715+00:00"
+}
