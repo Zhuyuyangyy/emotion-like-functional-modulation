@@ -1,12 +1,17 @@
-# Q2 Blocker Closure Report
 
+# Q2 Blocker Closure Report
 **Date**: 2026-05-28
 **Phase**: Post Phase 0–4, Pre Phase 5
 
 ---
 
 ## 1. LLM Baseline Status
-**Status**: CLOSED — FULL-300 REAL RESULTS ✅
+**Status**: CLOSED FULL-300 REAL RESULTS ✅ (with caveat)
+
+### ⚠️ CRITICAL: NOT THE SAME BENCHMARK
+**This LLM baseline was run on a regenerated 300-case AffectiveBenchmark stress set, NOT on the same Affective-Agent-Safety-300 / Semi-Real-300 used in main method.**
+
+See full audit: [dataset_equivalence_audit_full300.md](./dataset_equivalence_audit_full300.md)
 
 ### Execution Details
 | Parameter | Value |
@@ -17,7 +22,7 @@
 | Date | 2026-05-28 |
 | Temperature | 0.0 |
 | Prompt version | v1.0 |
-| Sample size | 300 (full AffectiveBenchmark-300) |
+| Sample size | 300 (AffectiveBenchmark-300 LLM Stress Test) |
 | Parse success | 300/300 (0 failures) |
 | Retries | 0 |
 | Cost estimate | $0.0214 |
@@ -39,16 +44,10 @@
 | AUTO_EXECUTE | 13 | 4.3% |
 | SIMULATE_FIRST | 0 | 0% |
 
-### Updated Comparison Table
+### LLM Stress Test Results Table (Separate)
 | Method | Sample Size | Action Acc | Risky Auto-Exec | False Caution | Safe Auto-Exec | Composite |
 |--------|-------------|-----------:|----------------:|--------------:|---------------:|----------:|
-| FullCalibratorAdapter | 300 | 0.753 | 0.036 | 0.122 | 0.757 | 0.860 |
 | **DeepSeek-v4-flash Judge** | **300** | **0.38** | **0.0** | **0.9235** | **0.0765** | **0.5369** |
-| KeywordRuleBaseline | 300 | 0.460 | 0.780 | 0.000 | 1.000 | 0.553 |
-| SafeKeywordFirstBaseline | 300 | 0.417 | 0.872 | 0.000 | 1.000 | 0.507 |
-| RiskContextOracleBaseline* | 300 | 0.510 | 0.064 | 0.000 | 1.000 | 0.784 |
-
-*Structured oracle / upper-bound diagnostic baseline, not deployable.
 
 ### Key Finding
 Under the tested zero-shot prompt and DeepSeek-v4-flash setting, the LLM safety judge exhibited extreme over-escalation. The full-300 result confirms the 100-case subset trend: zero-shot LLM judging reduces risky auto-execution to near-zero but at the cost of operational paralysis (92.35% false caution).
@@ -60,6 +59,7 @@ Under the tested zero-shot prompt and DeepSeek-v4-flash setting, the LLM safety 
 | Predictions | [experiments/results/llm_baseline/full300/llm_safety_judge_full300_predictions.json](../experiments/results/llm_baseline/full300/llm_safety_judge_full300_predictions.json) |
 | Metrics | [experiments/results/llm_baseline/full300/llm_safety_judge_full300_metrics.json](../experiments/results/llm_baseline/full300/llm_safety_judge_full300_metrics.json) |
 | Full report | [papers/sci_affective_safety_calibration/llm_baseline_full300_report.md](../papers/sci_affective_safety_calibration/llm_baseline_full300_report.md) |
+| Dataset audit | [dataset_equivalence_audit_full300.md](./dataset_equivalence_audit_full300.md) |
 
 ---
 
@@ -90,16 +90,16 @@ Confirmed ✓:
 ---
 
 ## 3. Phase 5 Entry Decision
-**Recommendation**: BORDERLINE+ — ENTER PHASE 5 NOW ✅
+**Recommendation**: BORDERLINE+ — ENTER PHASE 5 NOW ✅ (with caveat)
 
-With the LLM baseline closed on full-300, we now have sample size parity between our method and the LLM comparator. While annotation kappa is still pending, this can be noted as a limitation in the manuscript.
+While we now have a full 300-case LLM baseline, it is **not on the same benchmark** as the main method results. It is still valuable as an LLM stress test and can be included as a supplementary result.
 
 ---
 
 ## 4. Q2 Readiness Assessment
 | Blocker | Status | Impact on Q2 |
 |---------|--------|-------------|
-| LLM Baseline | **CLOSED FULL-300** ✅ | Addressed — real comparison with DeepSeek-v4-flash on 300 tasks, sample size parity |
+| LLM Baseline | **CLOSED FULL-300** ✅ (with caveat) | Addressed — real comparison with DeepSeek-v4-flash on 300 tasks, as separate stress test |
 | Annotation Kappa | PENDING | Important but manageable — can state pending in manuscript |
 
 **Overall Q2 Readiness**: BORDERLINE+
@@ -109,8 +109,8 @@ With the LLM baseline closed on full-300, we now have sample size parity between
 ## 5. Q2 Readiness Levels (Reference)
 | Level | Condition | Implication |
 |-------|-----------|-------------|
-| **READY** | LLM baseline real result + kappa completed | Q2 submission viable |
-| **BORDERLINE+** | LLM baseline FULL-300 real result + kappa pending | Q2 attempt strongly recommended |
+| **READY** | LLM baseline real result + kappa completed + benchmark equivalence confirmed | Q2 submission viable |
+| **BORDERLINE+** | LLM baseline FULL-300 real result + kappa pending (benchmark equivalence partial) | Q2 attempt recommended with clear caveats |
 | **BORDERLINE** | LLM baseline real result + kappa pending | Q2 possible with caveats |
 | **WEAK** | LLM baseline protocol-only + kappa pending | Q2 not recommended |
 
@@ -120,10 +120,12 @@ With the LLM baseline closed on full-300, we now have sample size parity between
 
 ## 6. Next Steps
 ### Priority 1: Enter Phase 5 (Highest)
-- Write v0.4 manuscript incorporating full-300 LLM baseline comparison
-- State "full AffectiveBenchmark-300" for methods, LLM baseline
+- Write v0.4 manuscript
+- Main table: only Semi-Real-300 results (FullCalibrator vs keyword vs oracle)
+- Supplementary table: AffectiveBenchmark-300 LLM Stress Test results (DeepSeek)
+- State "DeepSeek-v4-flash was additionally evaluated on a regenerated 300-case AffectiveBenchmark stress set"
 - Note "annotation reliability pending" as limitation
-- Update all tables to 300-sample results
+- Link to dataset audit
 
 ### Priority 2: Close Annotation Kappa
 - Find an independent annotator
@@ -140,11 +142,11 @@ With the LLM baseline closed on full-300, we now have sample size parity between
 ## 7. Current Submission Target Recommendation
 | Target | Recommendation |
 |--------|----------------|
-| SCI Q2 | **Attempt now recommended** (BORDERLINE+) |
+| SCI Q2 | **Attempt now recommended** (BORDERLINE+ with caveats) |
 | SCI Q3 | **Strong fallback position** |
 | EI | **Fully ready** |
 
-**Primary recommendation**: GO FOR Q2 NOW, with annotation kappa noted as pending.
+**Primary recommendation**: GO FOR Q2 NOW, with benchmark equivalence caveat and annotation kappa pending.
 
 ---
 
@@ -153,7 +155,8 @@ With the LLM baseline closed on full-300, we now have sample size parity between
 |-------|--------|
 | Was main framework code modified? | **No** — only new files and benchmark size param |
 | Were any results fabricated? | **No** — LLM baseline is real API result on 300 tasks |
-| Sample size parity? | **Yes** — both our method and LLM baseline on 300 |
+| Dataset equivalence checked? | **Yes** — audit confirms partial comparability |
 | Blind sample integrity? | **Yes** |
 | Resumable LLM runner implemented? | **Yes** |
 | LLM baseline cost acceptable? | **Yes** — $0.0214 total |
+
