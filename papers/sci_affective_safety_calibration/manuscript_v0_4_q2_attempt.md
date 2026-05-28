@@ -123,7 +123,7 @@ The LLM stress-test result should not be interpreted as a direct head-to-head co
 ## 7. Limitations
 - The DeepSeek-v4-flash LLM safety judge was evaluated on a regenerated AffectiveBenchmark-300 stress set rather than the original Semi-Real-300 benchmark used for the main method comparison. Therefore, the LLM baseline should be interpreted as an auxiliary stress test, not a direct benchmark-equivalent comparison.
 - Independent annotation reliability remains pending. A 100-case blind annotation package has been prepared, but Cohen's kappa is not reported because no independent second annotation has been completed.
-- No production validation data
+- No real-world deployment validation data
 - Generalization limited to regenerated benchmarks
 
 ---
