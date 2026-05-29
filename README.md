@@ -3,6 +3,24 @@
 [![Test Status](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation)
 [![Version](https://img.shields.io/badge/version-0.8.1-blue)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation)
 
+## Current Research Pack
+
+> **Teacher-review submission pack v0.4 is now available.**
+
+- **Submission pack**: [`papers/sci_affective_safety_calibration/submission_pack_v0_4/`](papers/sci_affective_safety_calibration/submission_pack_v0_4/)
+- **Current manuscript status**: Q2 cautious attempt / Q3 safer route
+- **Main manuscript**: `submission_pack_v0_4/manuscript_v0_4_q2_attempt_final_review.md`
+- **Blind manuscript**: `submission_pack_v0_4/manuscript_v0_4_q2_attempt_blind_final_review.md`
+- **Teacher review checklist**: `submission_pack_v0_4/teacher_review_checklist.md`
+
+**Important caveats:**
+- No subjective emotion claims — this is functional modulation, not consciousness
+- No real-world deployment evidence — generalization limited to simulated/semi-real benchmarks
+- Annotation kappa pending — independent second annotation not yet completed
+- DeepSeek full-300 is auxiliary regenerated AffectiveBenchmark stress test, not Semi-Real-300 direct comparison
+
+---
+
 ## Overview
 
 Experience-Shaped Affective Agent is a model-agnostic framework for **emotion-like behavioral modulation**. It implements functional mechanisms inspired by affective psychology to shape an agent's behavior based on its experiences.
@@ -65,8 +83,25 @@ emotion_agent/
 ├── prompt_modulator.py      # State-aware prompt injection
 ├── llm_output_guard.py     # Output validation and sanitization
 ├── provider_openai.py       # Mock LLM provider
-├── affective_benchmark.py  # 100-task evaluation suite
+├── affective_benchmark.py  # 300-task evaluation suite
 └── phoenix_agent_shield.py  # Phoenix-Evo/AgentShield integration
+
+papers/sci_affective_safety_calibration/
+├── submission_pack_v0_4/    # Teacher-review submission pack
+│   ├── manuscript_v0_4_q2_attempt_final_review.md
+│   ├── manuscript_v0_4_q2_attempt_blind_final_review.md
+│   ├── teacher_review_checklist.md
+│   ├── final_review_pack_acceptance_report.md
+│   ├── data_authenticity_statement.md
+│   ├── dataset_card.md
+│   ├── reproducibility_audit.md
+│   ├── references_final.md
+│   ├── figures/             # 4 figures (PNG + PDF)
+│   └── ...
+├── annotation_reliability/  # Annotation protocol and materials
+├── llm_baseline_report.md
+├── q2_blocker_closure_report.md
+└── ...
 ```
 
 ## Installation
@@ -144,13 +179,11 @@ python -m pytest tests/test_v0_3.py -v
 | **V0.3** | ✅ | Affective Generalization |
 | **V0.4** | ✅ | Conflict & Hesitation behavior |
 | **V0.5** | ✅ | LLM Integration (mock) |
-| **V0.6** | ✅ | Benchmark suite (100 tasks) |
+| **V0.6** | ✅ | Benchmark suite (300 tasks) |
 | **V0.7** | ✅ | Phoenix-Evo/AgentShield integration (adapter-level) |
 | **V0.8** | ✅ | Complete system integration |
 | **V0.8.1** | ✅ | Audit & Evidence Lock |
-| **V0.8.2** | 📋 | Benchmark refinement & ablation |
-| **V0.9** | 📋 | AffectiveBench formal validation |
-| **V1.0** | 📋 | Paper/technical report submission |
+| **V0.4-paper** | ✅ | Teacher-review submission pack v0.4 (Q2 attempt) |
 
 ## Documentation
 
@@ -158,6 +191,8 @@ python -m pytest tests/test_v0_3.py -v
 - [V0.8 Acceptance Report](docs/V0.8_ACCEPTANCE_REPORT.md)
 - [Integration Audit](docs/demo_evidence_v0.8/integration_audit.md)
 - [Benchmark Results](docs/demo_evidence_v0.8/benchmark_results.json)
+- [Submission Pack v0.4 Index](papers/sci_affective_safety_calibration/submission_pack_v0_4/README.md)
+- [Teacher Review Checklist](papers/sci_affective_safety_calibration/submission_pack_v0_4/teacher_review_checklist.md)
 
 ## Important Claims
 
@@ -165,12 +200,15 @@ python -m pytest tests/test_v0_3.py -v
 - ❌ Subjective emotions
 - ❌ Consciousness
 - ❌ Human-like feelings
+- ❌ Real-world deployment validation
+- ❌ Production-grade safety guarantees
 
 ### Claimed:
 - ✅ Emotion-like functional modulation
 - ✅ Affective state representation
 - ✅ Experience-based behavior shaping
 - ✅ Model-agnostic architecture
+- ✅ Structured safety calibration on semi-real benchmarks
 
 ## Innovation Points
 
