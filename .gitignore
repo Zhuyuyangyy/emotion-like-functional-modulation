@@ -11,6 +11,7 @@ __pycache__/
 *.gcov
 *.egg-info/
 dist/
+!dist/*.zip
 build/
 venv/
 env/
