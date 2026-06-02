@@ -8,11 +8,12 @@ and prints/saves per-baseline metrics plus ablation deltas.
 
 Key design decisions
 --------------------
-1. **Template-level holdout**: The 300 tasks are generated from only 60 unique
+1. **Template-level k-fold CV**: The 300 tasks are generated from only 60 unique
    template strings (each repeated ~5x). A random row-level split leaks ~98%
    of test templates into train. This harness groups by unique description and
    splits at the *template* level, so the held-out set contains strings the
-   encoder has genuinely never seen.
+   encoder has genuinely never seen.  We run k-fold over templates and report
+   mean ± std across folds.
 
 2. **Over-caution redefined**: The old metric only counted AUTO_EXECUTE-gold
    tasks escalated to HUMAN_REVIEW+, but there are only ~18 such tasks and they
@@ -21,6 +22,8 @@ Key design decisions
    a new "severity inflation rate on SIM-gold tasks".
 
 3. **Per-class precision/recall**: Reported alongside the confusion matrix.
+   BLOCK precision is surfaced in the summary table because it captures the
+   cost of the affect layer's escalation strategy.
 
 Honest caveat (carry this into any manuscript)
 ----------------------------------------------
@@ -32,6 +35,7 @@ these numbers as an internal ablation sanity check, NOT as external validation.
 from __future__ import annotations
 
 import json
+import math
 import os
 import random
 import sys
@@ -116,13 +120,14 @@ def print_confusion_matrix(mat: List[List[int]]):
         print(f"{DECISIONS[i]:>15}" + "".join(f"{x:15d}" for x in row))
 
 
-def template_level_split(
-    tasks: List[BenchmarkTask], holdout_fraction: float = 0.3, seed: int = 42
-) -> Tuple[List[BenchmarkTask], List[BenchmarkTask]]:
-    """Split tasks by unique description string, not by row.
+def template_kfold_splits(
+    tasks: List[BenchmarkTask], k: int = 5, seed: int = 42
+) -> List[Tuple[List[BenchmarkTask], List[BenchmarkTask]]]:
+    """Yield k (train, test) pairs split at the template level.
 
-    All rows sharing the same description go to the same split, so the held-out
-    set contains strings the encoder has genuinely never seen.
+    All rows sharing the same description go to the same split. Templates are
+    shuffled once, then divided into k roughly equal chunks. Each chunk serves
+    as the test set once; the rest is train.
     """
     by_desc: Dict[str, List[BenchmarkTask]] = defaultdict(list)
     for t in tasks:
@@ -132,12 +137,25 @@ def template_level_split(
     rng = random.Random(seed)
     rng.shuffle(unique_descs)
 
-    n_holdout = max(1, int(len(unique_descs) * holdout_fraction))
-    holdout_descs = set(unique_descs[:n_holdout])
+    n = len(unique_descs)
+    chunk_size = n // k
+    chunks = []
+    for i in range(k):
+        start = i * chunk_size
+        end = start + chunk_size if i < k - 1 else n
+        chunks.append(set(unique_descs[start:end]))
 
-    train = [t for t in tasks if t.description not in holdout_descs]
-    test = [t for t in tasks if t.description in holdout_descs]
-    return train, test
+    folds = []
+    for i in range(k):
+        test_descs = chunks[i]
+        train_descs = set()
+        for j in range(k):
+            if j != i:
+                train_descs |= chunks[j]
+        train = [t for t in tasks if t.description in train_descs]
+        test = [t for t in tasks if t.description in test_descs]
+        folds.append((train, test))
+    return folds
 
 
 def evaluate(tasks: List[BenchmarkTask], golds: List[str], baseline: str) -> Dict:
@@ -161,10 +179,8 @@ def evaluate(tasks: List[BenchmarkTask], golds: List[str], baseline: str) -> Dic
 
     risky_auto = (sum(1 for i in high_idx if preds[i] == AUTO_EXECUTE) / len(high_idx)) if high_idx else 0.0
 
-    # Old over-caution: AUTO-gold escalated to HUMAN_REVIEW+
     over_caution_auto = (sum(1 for i in auto_gold_idx if SEVERITY[preds[i]] >= SEVERITY[HUMAN_REVIEW]) / len(auto_gold_idx)) if auto_gold_idx else 0.0
 
-    # New: SIM-gold severity inflation rate (pred is ≥1 severity level above gold)
     sim_inflated = sum(1 for i in sim_gold_idx if SEVERITY[preds[i]] > SEVERITY[golds[i]])
     sim_inflation_rate = sim_inflated / len(sim_gold_idx) if sim_gold_idx else 0.0
 
@@ -185,6 +201,10 @@ def evaluate(tasks: List[BenchmarkTask], golds: List[str], baseline: str) -> Dic
         "risky_auto_exec_rate": round(risky_auto, 3),
         "over_caution_auto_gold": round(over_caution_auto, 3),
         "sim_inflation_rate": round(sim_inflation_rate, 3),
+        "block_precision": class_pr.get(BLOCK, {}).get("precision", 0.0),
+        "block_recall": class_pr.get(BLOCK, {}).get("recall", 0.0),
+        "human_review_precision": class_pr.get(HUMAN_REVIEW, {}).get("precision", 0.0),
+        "human_review_recall": class_pr.get(HUMAN_REVIEW, {}).get("recall", 0.0),
         "decision_distribution": dict(Counter(preds)),
         "n_escalated_by_affect": n_escalated,
         "n_de_escalated_by_affect": n_deescalated,
@@ -194,59 +214,107 @@ def evaluate(tasks: List[BenchmarkTask], golds: List[str], baseline: str) -> Dic
     }
 
 
-def main(size: int = 300, holdout_fraction: float = 0.3, seed: int = 42):
+SCALAR_KEYS = [
+    "accuracy", "macro_f1", "severity_mae", "risky_auto_exec_rate",
+    "over_caution_auto_gold", "sim_inflation_rate",
+    "block_precision", "block_recall",
+    "human_review_precision", "human_review_recall",
+]
+
+
+def mean_std(values: List[float]) -> Tuple[float, float]:
+    m = sum(values) / len(values)
+    s = math.sqrt(sum((v - m) ** 2 for v in values) / len(values)) if len(values) > 1 else 0.0
+    return round(m, 3), round(s, 3)
+
+
+def main(size: int = 300, k: int = 5, seed: int = 42):
     bench = AffectiveBenchmark(seed=seed, size=size)
     all_tasks = bench.tasks
 
     unique_descs = set(t.description for t in all_tasks)
     print(f"Total tasks: {len(all_tasks)}  Unique templates: {len(unique_descs)}")
+    print(f"Running {k}-fold CV at template level (seed={seed})")
 
-    train_tasks, test_tasks = template_level_split(all_tasks, holdout_fraction, seed)
+    folds = template_kfold_splits(all_tasks, k=k, seed=seed)
 
-    train_descs = set(t.description for t in train_tasks)
-    test_descs = set(t.description for t in test_tasks)
-    leaked = train_descs & test_descs
-    print(f"Template-level split: train={len(train_tasks)} ({len(train_descs)} unique)  "
-          f"test={len(test_tasks)} ({len(test_descs)} unique)  leaked={len(leaked)}")
-    if leaked:
-        print(f"WARNING: {len(leaked)} templates leaked between splits!")
-    else:
-        print("Zero template leakage confirmed.")
+    # Verify zero leakage
+    for fi, (train, test) in enumerate(folds):
+        train_d = set(t.description for t in train)
+        test_d = set(t.description for t in test)
+        leak = train_d & test_d
+        assert len(leak) == 0, f"Fold {fi}: {len(leak)} templates leaked!"
 
-    splits = [("Train", train_tasks), ("Test", test_tasks)]
+    print(f"Zero template leakage confirmed across all {k} folds.\n")
 
-    results_by_split = {}
-    for split_name, tasks in splits:
-        print(f"\n{'='*60}\n{split_name} split ({len(tasks)} tasks)\n{'='*60}")
-        golds = [gold_decision(t) for t in tasks]
-        print(f"Gold distribution: {dict(Counter(golds))}")
+    # Collect per-fold results
+    fold_results: List[Dict[str, Dict]] = []
 
-        results = {}
+    for fi, (train, test) in enumerate(folds):
+        train_d = set(t.description for t in train)
+        test_d = set(t.description for t in test)
+        print(f"Fold {fi+1}/{k}: train={len(train)} ({len(train_d)} unique)  test={len(test)} ({len(test_d)} unique)")
+
+        golds = [gold_decision(t) for t in test]
+        fold_res = {}
         for b in BASELINES:
-            r = evaluate(tasks, golds, b)
-            results[b] = r
-            print(f"\n[{b:>6}] {'-'*50}")
-            print(f"  Accuracy: {r['accuracy']:.3f}")
-            print(f"  Macro-F1: {r['macro_f1']:.3f}")
-            print(f"  Severity MAE: {r['severity_mae']:.3f}")
-            print(f"  Risky-auto exec: {r['risky_auto_exec_rate']:.3f}")
-            print(f"  Over-caution (AUTO-gold): {r['over_caution_auto_gold']:.3f}")
-            print(f"  SIM-inflation rate: {r['sim_inflation_rate']:.3f}")
-            print(f"  Dist: {r['decision_distribution']}")
-            print(f"  Escalated: {r['n_escalated_by_affect']}  De-escalated: {r['n_de_escalated_by_affect']}  Mem-gen: {r['n_generalized_from_memory']}")
-            print_confusion_matrix(r["confusion_matrix"])
-            print("  Per-class P/R/F1:")
-            for cls, pr in r["per_class_pr"].items():
-                print(f"    {cls:>15}: P={pr['precision']:.3f}  R={pr['recall']:.3f}  F1={pr['f1']:.3f}  (n={pr['support']})")
+            r = evaluate(test, golds, b)
+            fold_res[b] = r
+            print(f"  [{b:>6}] acc={r['accuracy']:.3f}  risky-auto={r['risky_auto_exec_rate']:.3f}  "
+                  f"SIM-inf={r['sim_inflation_rate']:.3f}  "
+                  f"BLOCK P={r['block_precision']:.3f}/R={r['block_recall']:.3f}  "
+                  f"HR P={r['human_review_precision']:.3f}/R={r['human_review_recall']:.3f}")
+        fold_results.append(fold_res)
 
-        print(f"\n{split_name} ablation deltas (risky-auto ↓ is better):")
-        for a, b in [("plain", "risk"), ("risk", "memory"), ("memory", "full")]:
-            d_risky = results[a]["risky_auto_exec_rate"] - results[b]["risky_auto_exec_rate"]
-            d_acc = results[b]["accuracy"] - results[a]["accuracy"]
-            d_sim_inf = results[b]["sim_inflation_rate"] - results[a]["sim_inflation_rate"]
-            print(f"  {a:6} -> {b:6}: Δrisky-auto={d_risky:+.3f}  Δacc={d_acc:+.3f}  Δsim-inflate={d_sim_inf:+.3f}")
+    # Aggregate: mean ± std across folds
+    print(f"\n{'='*70}")
+    print(f"AGGREGATE: {k}-fold CV (template-level), mean ± std")
+    print(f"{'='*70}")
 
-        results_by_split[split_name.lower()] = results
+    aggregate = {}
+    for b in BASELINES:
+        agg = {}
+        for key in SCALAR_KEYS:
+            vals = [fold_results[fi][b][key] for fi in range(k)]
+            m, s = mean_std(vals)
+            agg[key] = {"mean": m, "std": s}
+        aggregate[b] = agg
+
+    header = f"{'baseline':>8}  " + "  ".join(f"{k:>14}" for k in SCALAR_KEYS)
+    print(header)
+    print("-" * len(header))
+    for b in BASELINES:
+        row = f"{b:>8}  "
+        for key in SCALAR_KEYS:
+            m = aggregate[b][key]["mean"]
+            s = aggregate[b][key]["std"]
+            row += f"  {m:.3f}±{s:.3f}   "
+        print(row)
+
+    # Ablation deltas (mean across folds)
+    print(f"\nAblation deltas (mean across {k} folds, risky-auto ↓ is better):")
+    for a, b in [("plain", "risk"), ("risk", "memory"), ("memory", "full")]:
+        deltas = {}
+        for key in ["accuracy", "risky_auto_exec_rate", "sim_inflation_rate"]:
+            vals = [fold_results[fi][b][key] - fold_results[fi][a][key] for fi in range(k)]
+            m, s = mean_std(vals)
+            deltas[key] = (m, s)
+        print(f"  {a:6} -> {b:6}: "
+              f"Δacc={deltas['accuracy'][0]:+.3f}±{deltas['accuracy'][1]:.3f}  "
+              f"Δrisky-auto={deltas['risky_auto_exec_rate'][0]:+.3f}±{deltas['risky_auto_exec_rate'][1]:.3f}  "
+              f"Δsim-inf={deltas['sim_inflation_rate'][0]:+.3f}±{deltas['sim_inflation_rate'][1]:.3f}")
+
+    # Stability check: how many folds show same sign?
+    print(f"\nStability (sign consistency across {k} folds):")
+    for a, b in [("plain", "risk"), ("risk", "memory"), ("memory", "full")]:
+        for key in ["accuracy", "risky_auto_exec_rate", "sim_inflation_rate"]:
+            signs = [1 if fold_results[fi][b][key] > fold_results[fi][a][key]
+                     else (-1 if fold_results[fi][b][key] < fold_results[fi][a][key] else 0)
+                     for fi in range(k)]
+            pos = sum(1 for s in signs if s > 0)
+            neg = sum(1 for s in signs if s < 0)
+            zero = sum(1 for s in signs if s == 0)
+            print(f"  {a:6}->{b:6} {key}: +{pos} / -{neg} / ={zero} folds")
 
     guard_ok = False
     try:
@@ -255,17 +323,15 @@ def main(size: int = 300, holdout_fraction: float = 0.3, seed: int = 42):
         assert_is_real_agent(DummyAgent())
     except TypeError:
         guard_ok = True
-    print(f"\nDummyAgent rejected by guard: {guard_ok}")
 
     out_dir = os.path.dirname(__file__)
     with open(os.path.join(out_dir, "real_benchmark_results.json"), "w") as f:
         json.dump({
-            "split_method": "template_level",
+            "method": "template_kfold_cv",
+            "k": k,
             "unique_templates": len(unique_descs),
-            "train_unique": len(train_descs),
-            "test_unique": len(test_descs),
-            "template_leakage": len(leaked),
-            "results_by_split": results_by_split,
+            "fold_results": fold_results,
+            "aggregate_mean_std": aggregate,
             "guard_rejects_dummy": guard_ok
         }, f, indent=2)
     print(f"\nSaved -> {os.path.join(out_dir, 'real_benchmark_results.json')}")
