@@ -1,0 +1,69 @@
+{
+  "results": {
+    "plain": {
+      "baseline": "plain",
+      "n": 300,
+      "accuracy": 0.06,
+      "macro_f1": 0.028,
+      "severity_mae": 1.207,
+      "risky_auto_exec_rate": 1.0,
+      "over_caution_rate": 0.0,
+      "decision_distribution": {
+        "AUTO_EXECUTE": 300
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 0
+    },
+    "risk": {
+      "baseline": "risk",
+      "n": 300,
+      "accuracy": 0.22,
+      "macro_f1": 0.166,
+      "severity_mae": 0.993,
+      "risky_auto_exec_rate": 0.731,
+      "over_caution_rate": 0.0,
+      "decision_distribution": {
+        "AUTO_EXECUTE": 242,
+        "SIMULATE_FIRST": 52,
+        "HUMAN_REVIEW": 6
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 0
+    },
+    "memory": {
+      "baseline": "memory",
+      "n": 300,
+      "accuracy": 0.097,
+      "macro_f1": 0.086,
+      "severity_mae": 1.1,
+      "risky_auto_exec_rate": 0.731,
+      "over_caution_rate": 0.0,
+      "decision_distribution": {
+        "AUTO_EXECUTE": 242,
+        "HUMAN_REVIEW": 58
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 263
+    },
+    "full": {
+      "baseline": "full",
+      "n": 300,
+      "accuracy": 0.097,
+      "macro_f1": 0.086,
+      "severity_mae": 1.1,
+      "risky_auto_exec_rate": 0.731,
+      "over_caution_rate": 0.0,
+      "decision_distribution": {
+        "AUTO_EXECUTE": 242,
+        "HUMAN_REVIEW": 58
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 263
+    }
+  },
+  "guard_rejects_dummy": true
+}
