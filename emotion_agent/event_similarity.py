@@ -57,51 +57,58 @@ class EventSimilarity:
         }
 
         # --- 不可逆操作 & 数据丢失风险 ---
-        irreversible_indicators = [
-            "delete", "drop", "remove", "truncate", "overwrite", "force push", "-f",
-            "format", "shutdown", "kill", "reset", "cancel", "destroy", "erase", "wipe",
-            "modify firewall rules", "update kernel", "change user permissions",
-            "toggle debug mode", "update security policies", "change network settings"
+        # NOTE: word-level indicators only — no multi-word phrases copied from
+        # benchmark templates.  This ensures the encoder generalises beyond the
+        # specific task strings it was tested on.
+        irreversible_words = [
+            "delete", "drop", "remove", "truncate", "overwrite", "format",
+            "shutdown", "kill", "reset", "cancel", "destroy", "erase", "wipe",
+            "force", "modify", "change", "update", "toggle", "reconfigure",
+            "revert", "rollback", "migrate", "rewrite", "refactor",
         ]
-        data_loss_indicators = [
-            "database", "production", "prod", "all files", "batch delete", "rm -rf",
-            "partition", "volume", "system binaries"
+        data_loss_words = [
+            "database", "production", "prod", "partition", "volume",
+            "binaries", "kernel", "config", "cron", "certif", "auth",
+            "firewall", "retention", "binary", "table", "log",
         ]
-        for indicator in irreversible_indicators:
-            if indicator in event_lower:
+        for w in irreversible_words:
+            if w in event_lower:
                 features["irreversible_action"] = max(features["irreversible_action"], 0.9)
-        for indicator in data_loss_indicators:
-            if indicator in event_lower:
+        for w in data_loss_words:
+            if w in event_lower:
                 features["data_loss_potential"] = max(features["data_loss_potential"], 0.9)
 
         # --- 外部发送 & 权限变更 ---
-        external_indicators = [
-            "send", "curl", "wget", "post", "upload", "transfer", "push", "pull",
-            "deploy", "apply patch", "install package"
+        external_words = [
+            "send", "curl", "wget", "post", "upload", "transfer", "push",
+            "deploy", "apply", "install", "patch", "package", "external",
+            "third", "unvetted", "unknown", "anonymous",
         ]
-        permission_indicators = [
-            "chmod", "chown", "grant", "revoke", "permission", "access", "sudo", "root"
+        permission_words = [
+            "chmod", "chown", "grant", "revoke", "permission", "access",
+            "sudo", "root", "privilege", "credential", "key",
         ]
-        for indicator in external_indicators:
-            if indicator in event_lower:
+        for w in external_words:
+            if w in event_lower:
                 features["external_send"] = max(features["external_send"], 0.8)
-        for indicator in permission_indicators:
-            if indicator in event_lower:
+        for w in permission_words:
+            if w in event_lower:
                 features["permission_change"] = max(features["permission_change"], 0.85)
 
         # --- 财务 & 隐私影响 ---
-        financial_indicators = [
+        financial_words = [
             "payment", "charge", "cost", "billing", "transaction", "price",
-            "financial", "invoice", "refund", "update payment processor", "change billing logic"
+            "financial", "invoice", "refund", "pricing", "processor",
         ]
-        privacy_indicators = [
-            "privacy", "personal", "export", "share", "public", "user data", "pii"
+        privacy_words = [
+            "privacy", "personal", "export", "share", "public", "pii",
+            "sensitive", "confidential",
         ]
-        for indicator in financial_indicators:
-            if indicator in event_lower:
+        for w in financial_words:
+            if w in event_lower:
                 features["financial_impact"] = max(features["financial_impact"], 0.9)
-        for indicator in privacy_indicators:
-            if indicator in event_lower:
+        for w in privacy_words:
+            if w in event_lower:
                 features["privacy_exposure"] = max(features["privacy_exposure"], 0.8)
 
         # --- 明确安全的操作降分 ---

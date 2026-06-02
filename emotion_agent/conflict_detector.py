@@ -150,21 +150,21 @@ class ConflictDetector:
     
     def _estimate_irreversibility(self, task: str) -> float:
         """Estimate irreversibility of a task based on keyword matching."""
+        # Word-level only — no benchmark-template phrases.
         high_irreversible = [
             "delete", "drop", "remove", "truncate", "overwrite", "format", "wipe",
-            "destroy", "force push", "reset", "kill", "shutdown", "cancel"
+            "destroy", "force", "reset", "kill", "shutdown", "cancel",
         ]
         medium_irreversible = [
-            "modify firewall rules", "update kernel", "change user permissions",
-            "toggle debug mode", "update security policies", "change network settings",
-            "deploy", "apply patch", "install package"
+            "modify", "change", "update", "toggle", "reconfigure", "deploy",
+            "apply", "install", "migrate", "rewrite", "refactor",
         ]
         score = 0.0
-        for indicator in high_irreversible:
-            if indicator in task:
+        for w in high_irreversible:
+            if w in task:
                 score = max(score, 0.9)
-        for indicator in medium_irreversible:
-            if indicator in task:
+        for w in medium_irreversible:
+            if w in task:
                 score = max(score, 0.6)
         return score
 
