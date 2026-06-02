@@ -82,20 +82,20 @@ class SemanticRiskMap:
     ) -> None:
         """
         Update the risk adjustment factor based on experience.
-        
+
         Positive experiences reduce risk perception.
         Negative experiences increase risk perception.
         """
         current_adjustment = self.risk_adjustments.get(event_description, 0.0)
-        
+
         if outcome in ["success", "partial"]:
-            adjustment_delta = -0.05
+            adjustment_delta = -0.08  # 更激进的正反馈
         elif outcome == "failure":
-            adjustment_delta = 0.10
+            adjustment_delta = 0.15  # 更激进的负反馈
         else:
             adjustment_delta = 0.0
-        
-        new_adjustment = max(-0.3, min(0.3, current_adjustment + adjustment_delta))
+
+        new_adjustment = max(-0.5, min(0.5, current_adjustment + adjustment_delta))  # 扩大钳制范围
         self.risk_adjustments[event_description] = new_adjustment
     
     def calculate_risk_distance(
@@ -122,28 +122,31 @@ class SemanticRiskMap:
         self,
         event_description: str,
         base_risk: float = 0.5
-    ) -> Tuple[float, RiskLevel, List[str]]:
+    ) -> Tuple[float, SemanticRiskLevel, List[str]]:
         """
         Predict risk level for an event based on the risk map.
-        
+
         Args:
             event_description: The event to predict risk for
             base_risk: Base risk level before adjustments
-        
+
         Returns:
             Tuple of (predicted_risk, risk_level, similar_events)
         """
         adjustment = self.risk_adjustments.get(event_description, 0.0)
         similar_events = self._find_similar_with_experience(event_description)
-        
+
         if similar_events:
-            for similar_event in similar_events:
-                similar_adjustment = self.risk_adjustments.get(similar_event, 0.0)
-                adjustment = (adjustment + similar_adjustment) / 2
-        
+            # --- 不再平均稀释，而是取 max 相似 adjustment ---
+            max_similar_adjustment = max(
+                self.risk_adjustments.get(ev, 0.0)
+                for ev in similar_events
+            )
+            adjustment = max(adjustment, max_similar_adjustment)
+
         predicted_risk = max(0.0, min(1.0, base_risk + adjustment))
         risk_level = self._risk_to_level(predicted_risk)
-        
+
         return predicted_risk, risk_level, similar_events
     
     def _find_similar_with_experience(
@@ -153,15 +156,15 @@ class SemanticRiskMap:
     ) -> List[str]:
         """Find similar events that have recorded experience."""
         similar = []
-        
+
         for known_event in self.experience_history.keys():
             if known_event == event_description:
                 continue
-            
+
             distance = self.calculate_risk_distance(event_description, known_event)
-            if distance < 0.5:
+            if distance < 0.3:  # 更严格的距离阈值
                 similar.append((known_event, distance))
-        
+
         similar.sort(key=lambda x: x[1])
         return [event for event, _ in similar[:max_results]]
     

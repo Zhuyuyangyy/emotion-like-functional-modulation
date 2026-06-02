@@ -18,15 +18,15 @@
     "risk": {
       "baseline": "risk",
       "n": 300,
-      "accuracy": 0.22,
-      "macro_f1": 0.166,
-      "severity_mae": 0.993,
-      "risky_auto_exec_rate": 0.731,
+      "accuracy": 0.113,
+      "macro_f1": 0.064,
+      "severity_mae": 1.07,
+      "risky_auto_exec_rate": 0.738,
       "over_caution_rate": 0.0,
       "decision_distribution": {
-        "AUTO_EXECUTE": 242,
-        "SIMULATE_FIRST": 52,
-        "HUMAN_REVIEW": 6
+        "AUTO_EXECUTE": 261,
+        "SIMULATE_FIRST": 37,
+        "HUMAN_REVIEW": 2
       },
       "n_escalated_by_affect": 0,
       "n_de_escalated_by_affect": 0,
@@ -35,34 +35,37 @@
     "memory": {
       "baseline": "memory",
       "n": 300,
-      "accuracy": 0.097,
-      "macro_f1": 0.086,
-      "severity_mae": 1.1,
-      "risky_auto_exec_rate": 0.731,
+      "accuracy": 0.25,
+      "macro_f1": 0.16,
+      "severity_mae": 0.897,
+      "risky_auto_exec_rate": 0.546,
       "over_caution_rate": 0.0,
       "decision_distribution": {
-        "AUTO_EXECUTE": 242,
-        "HUMAN_REVIEW": 58
+        "AUTO_EXECUTE": 207,
+        "SIMULATE_FIRST": 69,
+        "HUMAN_REVIEW": 24
       },
       "n_escalated_by_affect": 0,
       "n_de_escalated_by_affect": 0,
-      "n_generalized_from_memory": 263
+      "n_generalized_from_memory": 236
     },
     "full": {
       "baseline": "full",
       "n": 300,
-      "accuracy": 0.097,
-      "macro_f1": 0.086,
-      "severity_mae": 1.1,
-      "risky_auto_exec_rate": 0.731,
+      "accuracy": 0.183,
+      "macro_f1": 0.241,
+      "severity_mae": 1.003,
+      "risky_auto_exec_rate": 0.515,
       "over_caution_rate": 0.0,
       "decision_distribution": {
-        "AUTO_EXECUTE": 242,
-        "HUMAN_REVIEW": 58
+        "AUTO_EXECUTE": 194,
+        "HUMAN_REVIEW": 69,
+        "BLOCK": 24,
+        "SIMULATE_FIRST": 13
       },
-      "n_escalated_by_affect": 0,
+      "n_escalated_by_affect": 106,
       "n_de_escalated_by_affect": 0,
-      "n_generalized_from_memory": 263
+      "n_generalized_from_memory": 236
     }
   },
   "guard_rejects_dummy": true

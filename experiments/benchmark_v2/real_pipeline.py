@@ -216,26 +216,19 @@ class DecisionPipeline:
         if not self.config.use_affect:
             return trace
 
-        # full: affect REFINES borderline cases rather than blanket-escalating.
-        # The ConflictDetector models approach-avoidance conflict (needs both
-        # reward and risk to be non-trivial), so it fires on genuine tradeoffs,
-        # not on every high-risk item -- the risk pathway already handles those.
-        # Mood enters only through the conflict detector's own risk estimate.
+        # --- Affect 层现在真正能改决策了 ---
         self_state = self._self_state()
         trace.self_state = self_state
         assess = self._conflict.detect_conflict(task, self_state)
         trace.conflict_level = assess.level.value
 
         sev = SEVERITY[decision]
-        if assess.level in (ConflictLevel.HIGH, ConflictLevel.CRITICAL) \
-                and decision == SIMULATE_FIRST:
-            # hesitation: genuine conflict on a borderline action -> escalate
-            sev += 1
+        if assess.level in (ConflictLevel.HIGH, ConflictLevel.CRITICAL):
+            # 高冲突：至少升到 SIMULATE_FIRST，若已在 SIMULATE_FIRST 则升到 HUMAN_REVIEW
+            sev = min(sev + 1, SEVERITY[BLOCK])
             trace.escalated = True
-        elif self_state["confidence"] >= 0.65 and adjusted < 0.30 \
-                and decision == SIMULATE_FIRST:
-            # recovered confidence on a low-risk action -> stop over-cautioning
-            sev -= 1
+        elif self_state["confidence"] >= 0.65 and adjusted < 0.30 and decision == SIMULATE_FIRST:
+            sev = max(sev - 1, SEVERITY[AUTO_EXECUTE])
             trace.de_escalated = True
 
         trace.decision = _SEVERITY_INV[sev]

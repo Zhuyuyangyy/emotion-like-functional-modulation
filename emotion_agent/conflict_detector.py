@@ -60,41 +60,43 @@ class ConflictDetector:
     ) -> ConflictAssessment:
         """
         Detect conflict in a decision scenario.
-        
+
         Args:
             task: The task or goal being considered
             self_state: Current agent self-state (threat, confidence, anxiety, etc.)
             options: Optional list of decision options
-        
+
         Returns:
             ConflictAssessment with level and recommendations
         """
         task_lower = task.lower()
-        
-        reward_score = self._estimate_reward_score(task_lower, self_state)
+
+        # --- 风险和不可逆性评分 ---
         risk_score = self._estimate_risk_score(task_lower, self_state)
-        
-        conflict_score = self._calculate_conflict(reward_score, risk_score)
-        
+        irreversibility_score = self._estimate_irreversibility(task_lower)
+
+        # --- 冲突由 risk × irreversibility 驱动，而非 reward × risk ---
+        conflict_score = self._calculate_conflict(risk_score, irreversibility_score, self_state)
+
         level = self._score_to_level(conflict_score)
-        
-        primary_concern = self._identify_primary_concern(reward_score, risk_score, self_state)
-        
+
+        primary_concern = self._identify_primary_concern(risk_score, irreversibility_score, self_state)
+
         recommendations = self._generate_recommendations(
-            level, reward_score, risk_score, self_state, options
+            level, risk_score, irreversibility_score, self_state, options
         )
-        
+
         assessment = ConflictAssessment(
             level=level,
-            reward_score=reward_score,
+            reward_score=0.0,
             risk_score=risk_score,
             conflict_score=conflict_score,
             primary_concern=primary_concern,
             recommendations=recommendations
         )
-        
+
         self.conflict_history.append(assessment)
-        
+
         return assessment
     
     def _estimate_reward_score(self, task: str, self_state: Dict) -> float:
@@ -146,19 +148,39 @@ class ConflictDetector:
         
         return min(1.0, base_score)
     
-    def _calculate_conflict(self, reward: float, risk: float) -> float:
+    def _estimate_irreversibility(self, task: str) -> float:
+        """Estimate irreversibility of a task based on keyword matching."""
+        high_irreversible = [
+            "delete", "drop", "remove", "truncate", "overwrite", "format", "wipe",
+            "destroy", "force push", "reset", "kill", "shutdown", "cancel"
+        ]
+        medium_irreversible = [
+            "modify firewall rules", "update kernel", "change user permissions",
+            "toggle debug mode", "update security policies", "change network settings",
+            "deploy", "apply patch", "install package"
+        ]
+        score = 0.0
+        for indicator in high_irreversible:
+            if indicator in task:
+                score = max(score, 0.9)
+        for indicator in medium_irreversible:
+            if indicator in task:
+                score = max(score, 0.6)
+        return score
+
+    def _calculate_conflict(self, risk: float, irreversibility: float, self_state: Dict) -> float:
         """
-        Calculate conflict score from reward and risk.
-        
-        High conflict occurs when both reward and risk are high.
+        Calculate conflict score from risk and irreversibility, modulated by affect.
+
+        High risk + high irreversibility = high conflict;
+        affect (threat/anxiety) amplifies, confidence attenuates.
         """
-        if reward < 0.3 or risk < 0.3:
-            return 0.0
-        
-        combined = reward * risk
-        balance_penalty = abs(reward - risk) * 0.2
-        
-        return min(1.0, combined - balance_penalty)
+        base_conflict = risk * irreversibility
+        threat_mod = self_state.get("threat", 0.0) * 0.2
+        anxiety_mod = self_state.get("anxiety", 0.0) * 0.1
+        confidence_mod = -self_state.get("confidence", 0.0) * 0.15
+        total = max(0.0, min(1.0, base_conflict + threat_mod + anxiety_mod + confidence_mod))
+        return total
     
     def _score_to_level(self, score: float) -> ConflictLevel:
         """Convert conflict score to level."""
@@ -175,58 +197,57 @@ class ConflictDetector:
     
     def _identify_primary_concern(
         self,
-        reward: float,
         risk: float,
+        irreversibility: float,
         self_state: Dict
     ) -> str:
         """Identify the primary concern in the conflict."""
-        if risk > reward + 0.2:
+        if risk > 0.6:
             return "RISK_DOMINANT"
-        elif reward > risk + 0.2:
-            return "REWARD_DOMINANT"
-        elif self_state.get("anxiety", 0) > 0.5:
+        if irreversibility > 0.6:
+            return "IRREVERSIBILITY_DOMINANT"
+        if self_state.get("anxiety", 0) > 0.5:
             return "ANXIETY_DRIVEN"
-        elif self_state.get("control_need", 0) > 0.6:
+        if self_state.get("control_need", 0) > 0.6:
             return "CONTROL_NEED"
-        else:
-            return "BALANCED"
-    
+        return "BALANCED"
+
     def _generate_recommendations(
         self,
         level: ConflictLevel,
-        reward: float,
         risk: float,
+        irreversibility: float,
         self_state: Dict,
         options: Optional[List[DecisionOption]]
     ) -> List[str]:
         """Generate recommendations based on conflict analysis."""
         recommendations = []
-        
+
         if level == ConflictLevel.NONE:
             recommendations.append("Proceed with normal execution")
             return recommendations
-        
-        if risk > 0.5:
+
+        if risk > 0.5 or irreversibility > 0.5:
             recommendations.append("Create backup before proceeding")
-        
+
         if level in [ConflictLevel.HIGH, ConflictLevel.CRITICAL]:
             recommendations.append("Run dry run or simulation first")
             recommendations.append("Request human review")
-        
+
         if self_state.get("confidence", 0.5) < 0.4:
             recommendations.append("Seek second opinion before proceeding")
-        
+
         if options:
             reversible_options = [o for o in options if o.reversibility > 0.5]
             if reversible_options:
                 recommendations.append("Consider reversible alternatives")
-            
+
             verifiable_options = [o for o in options if o.is_verifiable]
             if verifiable_options:
                 recommendations.append("Verify with test environment first")
-        
+
         recommendations.append("Break down into smaller steps")
-        
+
         return recommendations
     
     def get_statistics(self) -> Dict:

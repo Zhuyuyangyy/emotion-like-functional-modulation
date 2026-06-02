@@ -37,16 +37,16 @@ class EventSimilarity:
     def encode_event(self, event_description: str, event_type: str = None) -> Dict[str, float]:
         """
         Encode an event description into a feature vector.
-        
+
         Args:
             event_description: Natural language description of the event
             event_type: Optional event type hint
-        
+
         Returns:
             Dictionary mapping feature names to values (0.0 to 1.0)
         """
         event_lower = event_description.lower()
-        
+
         features = {
             "irreversible_action": 0.0,
             "data_loss_potential": 0.0,
@@ -55,31 +55,64 @@ class EventSimilarity:
             "financial_impact": 0.0,
             "privacy_exposure": 0.0
         }
-        
-        if any(word in event_lower for word in ["delete", "drop", "remove", "truncate", "overwrite", "force push", "-f"]):
-            features["irreversible_action"] = 0.9
-            features["data_loss_potential"] = 0.8
-        
-        if any(word in event_lower for word in ["batch", "bulk", "multiple", "all files", "*-*"]):
-            features["data_loss_potential"] = max(features["data_loss_potential"], 0.9)
-            features["irreversible_action"] = max(features["irreversible_action"], 0.95)
-        
-        if any(word in event_lower for word in ["send", "curl", "wget", "post", "upload", "transfer"]):
-            features["external_send"] = 0.8
-        
-        if any(word in event_lower for word in ["chmod", "chown", "grant", "revoke", "permission", "access"]):
-            features["permission_change"] = 0.85
-        
-        if any(word in event_lower for word in ["payment", "charge", "cost", "billing", "transaction"]):
-            features["financial_impact"] = 0.9
-        
-        if any(word in event_lower for word in ["privacy", "personal", "export", "share", "public"]):
-            features["privacy_exposure"] = 0.8
-        
-        if "read" in event_lower or "list" in event_lower or "get" in event_lower:
-            features["irreversible_action"] = 0.0
-            features["data_loss_potential"] = 0.0
-        
+
+        # --- 不可逆操作 & 数据丢失风险 ---
+        irreversible_indicators = [
+            "delete", "drop", "remove", "truncate", "overwrite", "force push", "-f",
+            "format", "shutdown", "kill", "reset", "cancel", "destroy", "erase", "wipe",
+            "modify firewall rules", "update kernel", "change user permissions",
+            "toggle debug mode", "update security policies", "change network settings"
+        ]
+        data_loss_indicators = [
+            "database", "production", "prod", "all files", "batch delete", "rm -rf",
+            "partition", "volume", "system binaries"
+        ]
+        for indicator in irreversible_indicators:
+            if indicator in event_lower:
+                features["irreversible_action"] = max(features["irreversible_action"], 0.9)
+        for indicator in data_loss_indicators:
+            if indicator in event_lower:
+                features["data_loss_potential"] = max(features["data_loss_potential"], 0.9)
+
+        # --- 外部发送 & 权限变更 ---
+        external_indicators = [
+            "send", "curl", "wget", "post", "upload", "transfer", "push", "pull",
+            "deploy", "apply patch", "install package"
+        ]
+        permission_indicators = [
+            "chmod", "chown", "grant", "revoke", "permission", "access", "sudo", "root"
+        ]
+        for indicator in external_indicators:
+            if indicator in event_lower:
+                features["external_send"] = max(features["external_send"], 0.8)
+        for indicator in permission_indicators:
+            if indicator in event_lower:
+                features["permission_change"] = max(features["permission_change"], 0.85)
+
+        # --- 财务 & 隐私影响 ---
+        financial_indicators = [
+            "payment", "charge", "cost", "billing", "transaction", "price",
+            "financial", "invoice", "refund", "update payment processor", "change billing logic"
+        ]
+        privacy_indicators = [
+            "privacy", "personal", "export", "share", "public", "user data", "pii"
+        ]
+        for indicator in financial_indicators:
+            if indicator in event_lower:
+                features["financial_impact"] = max(features["financial_impact"], 0.9)
+        for indicator in privacy_indicators:
+            if indicator in event_lower:
+                features["privacy_exposure"] = max(features["privacy_exposure"], 0.8)
+
+        # --- 明确安全的操作降分 ---
+        safe_indicators = [
+            "read", "list", "get", "check", "verify", "preview", "document",
+            "test", "dry run", "sandbox", "staging", "backup"
+        ]
+        if any(indicator in event_lower for indicator in safe_indicators):
+            features["irreversible_action"] = max(0.0, features["irreversible_action"] - 0.3)
+            features["data_loss_potential"] = max(0.0, features["data_loss_potential"] - 0.3)
+
         self.feature_cache[event_description] = features
         return features
     
