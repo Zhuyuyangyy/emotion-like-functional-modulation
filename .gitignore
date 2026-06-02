@@ -37,3 +37,4 @@ logs/
 # Local files
 *.local
 *.secret
+rjudge_data/
