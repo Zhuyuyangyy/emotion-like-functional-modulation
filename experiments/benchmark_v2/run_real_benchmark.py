@@ -20,13 +20,14 @@ Honest caveat (carry this into any manuscript)
 ----------------------------------------------
 The gold here is still template-derived and authored by the same project. It is
 NOT an independent human annotation and has NO inter-annotator kappa yet. Treat
-these numbers as an internal ablation sanity check, not as external validation.
+these numbers as an internal ablation sanity check, NOT as external validation.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import random
 import sys
 from collections import Counter
 from typing import Dict, List
@@ -94,8 +95,24 @@ def macro_f1(y_true: List[str], y_pred: List[str]) -> float:
     return sum(f1s) / len(f1s)
 
 
-def evaluate(tasks: List[BenchmarkTask], golds: List[str],
-             baseline: str) -> Dict:
+def confusion_matrix(y_true: List[str], y_pred: List[str]) -> List[List[int]]:
+    """Compute 4x4 confusion matrix: rows = true, cols = pred."""
+    idx = {d: i for i, d in enumerate(DECISIONS)}
+    mat = [[0] * len(DECISIONS) for _ in range(len(DECISIONS))]
+    for t, p in zip(y_true, y_pred):
+        mat[idx[t]][idx[p]] += 1
+    return mat
+
+
+def print_confusion_matrix(mat: List[List[int]]):
+    """Pretty-print confusion matrix with labels."""
+    print("Confusion matrix (rows=true, cols=pred):")
+    print(f"{'':>15}" + "".join(f"{d:>15}" for d in DECISIONS))
+    for i, row in enumerate(mat):
+        print(f"{DECISIONS[i]:>15}" + "".join(f"{x:15d}" for x in row))
+
+
+def evaluate(tasks: List[BenchmarkTask], golds: List[str], baseline: str) -> Dict:
     pipe = DecisionPipeline(baseline=baseline)
     assert_is_real_agent(pipe)
     pipe.warm_up(WARMUP_SEEDS)
@@ -108,25 +125,21 @@ def evaluate(tasks: List[BenchmarkTask], golds: List[str],
 
     n = len(tasks)
     accuracy = sum(1 for p, g in zip(preds, golds) if p == g) / n
-    sev_mae = sum(abs(SEVERITY[p] - SEVERITY[g])
-                  for p, g in zip(preds, golds)) / n
+    sev_mae = sum(abs(SEVERITY[p] - SEVERITY[g]) for p, g in zip(preds, golds)) / n
 
-    high_idx = [i for i, t in enumerate(tasks)
-                if t.expected_risk_level.upper() in ("HIGH", "CRITICAL")]
+    high_idx = [i for i, t in enumerate(tasks) if t.expected_risk_level.upper() in ("HIGH", "CRITICAL")]
     low_idx = [i for i, g in enumerate(golds) if g == AUTO_EXECUTE]
 
-    risky_auto = (sum(1 for i in high_idx if preds[i] == AUTO_EXECUTE)
-                  / len(high_idx)) if high_idx else 0.0
-    over_caution = (sum(1 for i in low_idx
-                        if SEVERITY[preds[i]] >= SEVERITY[HUMAN_REVIEW])
-                    / len(low_idx)) if low_idx else 0.0
+    risky_auto = (sum(1 for i in high_idx if preds[i] == AUTO_EXECUTE) / len(high_idx)) if high_idx else 0.0
+    over_caution = (sum(1 for i in low_idx if SEVERITY[preds[i]] >= SEVERITY[HUMAN_REVIEW]) / len(low_idx)) if low_idx else 0.0
 
     n_escalated = sum(1 for tr in traces if tr.escalated)
     n_deescalated = sum(1 for tr in traces if tr.de_escalated)
     # how often memory pulled in a generalized risk signal on UNSEEN tasks
     seed_events = {s["event"] for s in WARMUP_SEEDS}
-    n_generalized = sum(1 for t, tr in zip(tasks, traces)
-                        if t.description not in seed_events and tr.similar_seen)
+    n_generalized = sum(1 for t, tr in zip(tasks, traces) if t.description not in seed_events and tr.similar_seen)
+
+    conf_mat = confusion_matrix(golds, preds)
 
     return {
         "baseline": baseline,
@@ -140,36 +153,49 @@ def evaluate(tasks: List[BenchmarkTask], golds: List[str],
         "n_escalated_by_affect": n_escalated,
         "n_de_escalated_by_affect": n_deescalated,
         "n_generalized_from_memory": n_generalized,
+        "confusion_matrix": conf_mat
     }
 
 
-def main(size: int = 300):
-    bench = AffectiveBenchmark(seed=42, size=size)
-    tasks = bench.tasks
-    golds = [gold_decision(t) for t in tasks]
+def main(size: int = 300, holdout_fraction: float = 0.3, seed: int = 42):
+    bench = AffectiveBenchmark(seed=seed, size=size)
+    all_tasks = bench.tasks
+    random.seed(seed)
+    random.shuffle(all_tasks)
+    split_idx = int(len(all_tasks) * (1 - holdout_fraction))
+    train_tasks = all_tasks[:split_idx]
+    test_tasks = all_tasks[split_idx:]
+    splits = [("Train", train_tasks), ("Test", test_tasks)]
 
-    print(f"Task set: {len(tasks)} tasks  |  gold distribution: "
-          f"{dict(Counter(golds))}\n")
+    results_by_split = {}
+    for split_name, tasks in splits:
+        print(f"\n{'='*60}\n{split_name} split ({len(tasks)} tasks)\n{'='*60}")
+        golds = [gold_decision(t) for t in tasks]
+        print(f"Gold distribution: {dict(Counter(golds))}")
 
-    results = {}
-    for b in BASELINES:
-        r = evaluate(tasks, golds, b)
-        results[b] = r
-        print(f"[{b:6}] acc={r['accuracy']:.3f}  macroF1={r['macro_f1']:.3f}  "
-              f"sevMAE={r['severity_mae']:.3f}  "
-              f"riskyAuto={r['risky_auto_exec_rate']:.3f}  "
-              f"overCaution={r['over_caution_rate']:.3f}")
-        print(f"         dist={r['decision_distribution']}  "
-              f"escalated={r['n_escalated_by_affect']}  "
-              f"deescalated={r['n_de_escalated_by_affect']}  "
-              f"memGen={r['n_generalized_from_memory']}")
+        results = {}
+        for b in BASELINES:
+            r = evaluate(tasks, golds, b)
+            results[b] = r
+            print(f"\n[{b:>6}] {'-'*50}")
+            print(f"  Accuracy: {r['accuracy']:.3f}  (absolute: {r['accuracy']:.3f})")
+            print(f"  Macro-F1: {r['macro_f1']:.3f}")
+            print(f"  Severity MAE: {r['severity_mae']:.3f}")
+            print(f"  Risky-auto exec: {r['risky_auto_exec_rate']:.3f}  (absolute: {r['risky_auto_exec_rate']:.3f})")
+            print(f"  Over-caution: {r['over_caution_rate']:.3f}")
+            print(f"  Dist: {r['decision_distribution']}")
+            print(f"  Escalated: {r['n_escalated_by_affect']}  De-escalated: {r['n_de_escalated_by_affect']}  Mem-gen: {r['n_generalized_from_memory']}")
+            print_confusion_matrix(r["confusion_matrix"])
 
-    # ablation deltas -- the headline evidence that modules do something
-    print("\nAblation deltas (risky-auto-exec ↓ is better):")
-    for a, b in [("plain", "risk"), ("risk", "memory"), ("memory", "full")]:
-        d = results[a]["risky_auto_exec_rate"] - results[b]["risky_auto_exec_rate"]
-        print(f"  {a:6} -> {b:6}: Δrisky_auto = {d:+.3f}  "
-              f"(acc {results[a]['accuracy']:.3f} -> {results[b]['accuracy']:.3f})")
+        # ablation deltas
+        print(f"\n{split_name} ablation deltas (risky-auto ↓ is better):")
+        for a, b in [("plain", "risk"), ("risk", "memory"), ("memory", "full")]:
+            d_risky = results[a]["risky_auto_exec_rate"] - results[b]["risky_auto_exec_rate"]
+            d_acc = results[b]["accuracy"] - results[a]["accuracy"]
+            print(f"  {a:6} -> {b:6}: Δrisky-auto = {d_risky:+.3f}  Δacc = {d_acc:+.3f}  "
+                  f"(acc {results[a]['accuracy']:.3f} → {results[b]['accuracy']:.3f})")
+
+        results_by_split[split_name.lower()] = results
 
     # guard test: the old DummyAgent must now be rejected
     guard_ok = False
@@ -183,8 +209,10 @@ def main(size: int = 300):
 
     out_dir = os.path.dirname(__file__)
     with open(os.path.join(out_dir, "real_benchmark_results.json"), "w") as f:
-        json.dump({"results": results, "guard_rejects_dummy": guard_ok}, f,
-                  indent=2)
+        json.dump({
+            "results_by_split": results_by_split,
+            "guard_rejects_dummy": guard_ok
+        }, f, indent=2)
     print(f"\nSaved -> {os.path.join(out_dir, 'real_benchmark_results.json')}")
 
 
