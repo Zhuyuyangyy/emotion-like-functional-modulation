@@ -32,7 +32,7 @@ class TestEventSimilarity:
         features2 = sim.encode_event("delete file")
         
         similarity = sim.calculate_similarity(features1, features2)
-        assert similarity == 1.0
+        assert abs(similarity - 1.0) < 1e-9
     
     def test_calculate_similarity_different(self):
         """Test similarity of different events."""

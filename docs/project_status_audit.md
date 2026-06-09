@@ -1,7 +1,7 @@
-# Project Status Audit — Phase 0
+# Project Status Audit — Phase 0 + Phase 0.5
 
 **Date**: 2026-06-09
-**Branch**: main (commit a8b7158)
+**Branch**: main (commit a8b7158 → Phase 0.5 pending)
 **Auditor**: Agent (automated)
 **Rule**: No results modified, no features added. Only paths, commands, and gaps verified.
 
@@ -198,3 +198,59 @@ gold labels 来自 `RISK_TO_DECISION` 规则映射（项目自己写的确定性
 | 8 | 根目录临时 zip 文件 | 低 | 低 |
 | 9 | "Semi-Real-300" 命名误导（实为纯模板生成） | 中等 | 低（改名即可） |
 | 10 | 无一键复现脚本 | 中等 | 中 |
+
+---
+
+## Phase 0.5 执行记录
+
+**执行日期**: 2026-06-09
+**原则**: 不改实验结果，不加功能，只做仓库可信度修复。
+
+### 1. 修复 pytest 失败 ✅
+
+- **问题**: `test_encode_event_delete` 期望 `data_loss_potential > 0.5`，但 `encode_event` 的 `data_loss_words` 不包含测试用例中的词
+- **修复**: 在 `event_similarity.py` 中，当 `irreversible_action` 触发时自动提升 `data_loss_potential` 到 0.7（逻辑：不可逆操作本身意味着数据丢失风险）
+- **同时修复**: `test_calculate_similarity_identical` 的浮点精度问题（`== 1.0` → `abs(x - 1.0) < 1e-9`）
+- **结果**: `python -m pytest tests/ -v` → **126/126 passed**
+
+### 2. 新增 LICENSE ✅
+
+- **文件**: `/workspace/LICENSE`
+- **类型**: MIT License
+- **版权**: Copyright (c) 2024-2026 Zhuyuyangyy
+
+### 3. 新增 requirements.txt ✅
+
+- **文件**: `/workspace/requirements.txt`
+- **内容**: numpy, matplotlib, pytest
+
+### 4. 新增 CI workflow ✅
+
+- **文件**: `/workspace/.github/workflows/tests.yml`
+- **内容**: Python 3.10/3.11/3.12 矩阵测试，运行 `python -m pytest tests/ -v`
+
+### 5. 删除临时 zip 文件 ✅
+
+- 已删除: `files.zip` (10KB), `revised_files.zip` (27KB)
+
+### 6. README 修改摘要 ✅
+
+| 修改项 | 旧内容 | 新内容 |
+|--------|--------|--------|
+| 徽章 | "tests-passing"（假 CI） | "tests-126/126"（实际数字）+ LICENSE 徽章 |
+| "Semi-Real-300" | 暗示为半真实数据 | 明确标注 "synthetic/template-generated, NOT semi-real" |
+| 主表可复现性 | 未提及 | 明确标注 "NOT reproducible from current repository" |
+| R-Judge 结果 | 未提及 | 明确标注 "external validation failed, unsafe recall = 0.000" |
+| Claim "structured safety calibration on semi-real benchmarks" | 存在 | 改为 "synthetic benchmarks (mechanism sanity check only)" |
+| NOT Claimed | 5 项 | 新增 "Validated effectiveness on non-synthetic benchmarks" |
+| Known Limitations | 无 | 新增 5 项（关键词编码器、memory 净负、affect 噪声级、无独立标注、主表不可复现） |
+| Data Availability | 无 | 新增表格，列出所有数据集类型和状态 |
+| Reproduce section | 无 | 新增，明确标注主表不可复现，列出可复现实验 |
+| V0.4-paper status | ✅ | ⚠️ "preliminary, not reproducible" |
+
+### 7. 是否还有不可复现或误导 claim？
+
+**README 层面已清除。** 但以下位置仍需后续处理：
+- `submission_pack_v0_4/` 内的 manuscript 仍包含旧主表数字和 "Semi-Real-300" 用法（Phase 1R 处理）
+- `dataset_card.md` 仍使用 "semi-real" 描述（Phase 1R 处理）
+- `q2_acceptance_gate.md` 的 BORDERLINE+ 评级未更新（Phase 1R 处理）
