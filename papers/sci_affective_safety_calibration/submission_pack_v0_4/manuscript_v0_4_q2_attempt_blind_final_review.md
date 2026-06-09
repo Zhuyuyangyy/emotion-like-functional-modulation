@@ -1,4 +1,7 @@
 # Experience-Shaped Affective Safety Calibration for Autonomous Agents
+
+> **Deprecated historical draft.** The claims in this file were written before the Phase 0–1R audit. Do not treat Semi-Real-300, Q2 BORDERLINE+, or the old main-table metrics as current reproducible evidence.
+
 ## Manuscript v0.4: Q2 Cautious Attempt (Blind Final Review)
 
 **Date**: 2026-05-28  

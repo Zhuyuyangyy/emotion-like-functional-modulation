@@ -1,5 +1,7 @@
 # Cover Letter Draft
 
+> **Deprecated historical draft.** The claims in this file were written before the Phase 0–1R audit. Do not treat Semi-Real-300, Q2 BORDERLINE+, or the old main-table metrics as current reproducible evidence.
+
 Dear Editor,
 
 We are pleased to submit our manuscript entitled "Experience-Shaped Affective Safety Calibration for Autonomous Agents" for consideration in [Journal Name].

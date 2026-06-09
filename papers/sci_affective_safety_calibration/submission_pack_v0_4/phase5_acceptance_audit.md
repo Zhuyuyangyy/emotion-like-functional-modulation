@@ -1,4 +1,7 @@
 # Phase 5 Acceptance Audit
+
+> **Deprecated historical draft.** The claims in this file were written before the Phase 0–1R audit. Do not treat Semi-Real-300, Q2 BORDERLINE+, or the old main-table metrics as current reproducible evidence.
+
 **Date**: 2026-05-28
 **Auditor**: Automated audit per user specification
 **Verdict**: ✅ **PASS with 1 minor fix applied**
