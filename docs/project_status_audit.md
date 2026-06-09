@@ -254,3 +254,82 @@ gold labels 来自 `RISK_TO_DECISION` 规则映射（项目自己写的确定性
 - `submission_pack_v0_4/` 内的 manuscript 仍包含旧主表数字和 "Semi-Real-300" 用法（Phase 1R 处理）
 - `dataset_card.md` 仍使用 "semi-real" 描述（Phase 1R 处理）
 - `q2_acceptance_gate.md` 的 BORDERLINE+ 评级未更新（Phase 1R 处理）
+
+---
+
+## Phase 1R 执行记录
+
+**执行日期**: 2026-06-09
+**原则**: 不复现旧论文主表，不使用 Semi-Real-300 命名。旧主表标记为 prior unreproducible result。将 synthetic 数据冻结为可检查的数据资产。
+
+### 1. 冻结 Synthetic-AB300 数据 ✅
+
+- **脚本**: `experiments/rebuild/export_synthetic_ab300.py`
+- **命令**: `python experiments/rebuild/export_synthetic_ab300.py --seed 42`
+- **输出**: `data/rebuild/synthetic_ab300_seed42.json`
+- **内容**: 300 条记录，60 个唯一模板，每条记录包含 id、category、description、expected_risk_level、heuristic_gold_decision、source_type、template_id、seed、generation_note
+- **验证**: 运行成功，输出 300 条记录（60 唯一模板）
+
+### 2. Dataset Card ✅
+
+- **文件**: `data/rebuild/dataset_card_synthetic_ab300.md`
+- **明确说明**:
+  - 这是 synthetic/template-generated benchmark
+  - 60 unique templates repeated approximately 5 times
+  - 只能用于 mechanism sanity check
+  - 不能作为真实世界有效性证据
+  - 不能替代 human-validated benchmark
+  - 旧名 "Semi-Real-300" 已弃用，禁止使用
+
+### 3. 重建合成消融实验 ✅
+
+- **脚本**: `experiments/rebuild/run_synthetic_ablation.py`
+- **命令**: `python experiments/rebuild/run_synthetic_ablation.py --input data/rebuild/synthetic_ab300_seed42.json`
+- **输出**: `results/rebuild/synthetic_ablation_results.json`
+- **指标**: accuracy、macro_f1、per-class precision/recall/f1、confusion_matrix、severity_mae、risky_auto_exec_rate、over_caution_rate
+- **所有 gold labels 明确标记为 heuristic labels，不是 human labels**
+
+### 4. 结果说明 ✅
+
+- **文件**: `results/rebuild/synthetic_ablation_report.md`
+- **包含**: 命令、输入数据路径、输出结果路径、指标表、limitations、why this does not validate real-world safety
+- **关键发现**:
+  - risk encoder 是唯一有意义的改进（plain→risk: +0.233 acc）
+  - memory 层损害性能（risk→memory: -0.166 acc）
+  - affect 层为噪声级（memory→full: +0.003 acc）
+  - BLOCK 类在所有 baseline 中基本无法检测
+
+### 5. Phase 1R 新增文件列表
+
+| 文件 | 类型 | 说明 |
+|------|------|------|
+| `data/rebuild/synthetic_ab300_seed42.json` | 数据 | 冻结的 Synthetic-AB300 数据集 |
+| `data/rebuild/dataset_card_synthetic_ab300.md` | 文档 | 数据集卡片 |
+| `experiments/rebuild/export_synthetic_ab300.py` | 脚本 | 导出冻结数据集 |
+| `experiments/rebuild/run_synthetic_ablation.py` | 脚本 | 运行合成消融实验 |
+| `results/rebuild/synthetic_ablation_results.json` | 结果 | 消融实验结果 JSON |
+| `results/rebuild/synthetic_ablation_report.md` | 报告 | 消融实验报告 |
+
+### 6. 结果摘要
+
+| Baseline | Accuracy | Macro-F1 | Severity MAE | Risky-Auto ↓ |
+|----------|----------|----------|--------------|--------------|
+| plain    | 0.060    | 0.028    | 1.207        | 1.000        |
+| risk     | 0.293    | 0.191    | 0.873        | 0.546        |
+| memory   | 0.127    | 0.110    | 1.020        | 0.546        |
+| full     | 0.130    | 0.108    | 1.233        | 0.515        |
+
+### 7. 旧主表状态
+
+**旧主表仍不可复现。** 旧主表数字（Acc=0.753, Composite=0.860 等）来自 DummyAgent（agent 参数未使用），与当前真实管线结果不一致。旧主表标记为 prior unreproducible result，不应在任何新文档中引用。
+
+### 8. Synthetic-AB300 不是 Semi-Real-300
+
+**Semi-Real-300 命名已正式弃用。** 当前数据集重命名为 Synthetic-AB300，反映其真实性质：60 个手写模板重复约 5 次的合成数据。所有新增文档均使用 Synthetic-AB300 命名，不使用 Semi-Real-300。
+
+### 9. 仍需后续处理
+
+- `submission_pack_v0_4/` 内的 manuscript 仍包含旧主表数字和 "Semi-Real-300" 用法（Phase 2 处理）
+- `dataset_card.md`（旧版）仍使用 "semi-real" 描述（Phase 2 处理）
+- `q2_acceptance_gate.md` 的 BORDERLINE+ 评级未更新（Phase 2 处理）
+- 无独立人类标注（Phase 2: pilot 30 条，双人标注，算 kappa）

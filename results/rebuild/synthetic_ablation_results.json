@@ -1,0 +1,293 @@
+{
+  "dataset_name": "Synthetic-AB300",
+  "dataset_source": "synthetic_ab300_seed42.json",
+  "gold_label_type": "heuristic (NOT human-validated)",
+  "baselines": [
+    "plain",
+    "risk",
+    "memory",
+    "full"
+  ],
+  "results": {
+    "plain": {
+      "baseline": "plain",
+      "n": 300,
+      "accuracy": 0.06,
+      "macro_f1": 0.028,
+      "severity_mae": 1.207,
+      "risky_auto_exec_rate": 1.0,
+      "over_caution_rate": 0.0,
+      "per_class": {
+        "AUTO_EXECUTE": {
+          "precision": 0.06,
+          "recall": 1.0,
+          "f1": 0.113,
+          "support": 18
+        },
+        "SIMULATE_FIRST": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 217
+        },
+        "HUMAN_REVIEW": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 50
+        },
+        "BLOCK": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 15
+        }
+      },
+      "confusion_matrix": [
+        [
+          18,
+          0,
+          0,
+          0
+        ],
+        [
+          217,
+          0,
+          0,
+          0
+        ],
+        [
+          50,
+          0,
+          0,
+          0
+        ],
+        [
+          15,
+          0,
+          0,
+          0
+        ]
+      ],
+      "decision_distribution": {
+        "AUTO_EXECUTE": 300
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 0
+    },
+    "risk": {
+      "baseline": "risk",
+      "n": 300,
+      "accuracy": 0.293,
+      "macro_f1": 0.191,
+      "severity_mae": 0.873,
+      "risky_auto_exec_rate": 0.546,
+      "over_caution_rate": 0.0,
+      "per_class": {
+        "AUTO_EXECUTE": {
+          "precision": 0.087,
+          "recall": 1.0,
+          "f1": 0.16,
+          "support": 18
+        },
+        "SIMULATE_FIRST": {
+          "precision": 0.756,
+          "recall": 0.3,
+          "f1": 0.429,
+          "support": 217
+        },
+        "HUMAN_REVIEW": {
+          "precision": 0.714,
+          "recall": 0.1,
+          "f1": 0.175,
+          "support": 50
+        },
+        "BLOCK": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 15
+        }
+      },
+      "confusion_matrix": [
+        [
+          18,
+          0,
+          0,
+          0
+        ],
+        [
+          152,
+          65,
+          0,
+          0
+        ],
+        [
+          30,
+          15,
+          5,
+          0
+        ],
+        [
+          7,
+          6,
+          2,
+          0
+        ]
+      ],
+      "decision_distribution": {
+        "AUTO_EXECUTE": 207,
+        "SIMULATE_FIRST": 86,
+        "HUMAN_REVIEW": 7
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 0
+    },
+    "memory": {
+      "baseline": "memory",
+      "n": 300,
+      "accuracy": 0.127,
+      "macro_f1": 0.11,
+      "severity_mae": 1.02,
+      "risky_auto_exec_rate": 0.546,
+      "over_caution_rate": 0.0,
+      "per_class": {
+        "AUTO_EXECUTE": {
+          "precision": 0.087,
+          "recall": 1.0,
+          "f1": 0.16,
+          "support": 18
+        },
+        "SIMULATE_FIRST": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 217
+        },
+        "HUMAN_REVIEW": {
+          "precision": 0.215,
+          "recall": 0.4,
+          "f1": 0.28,
+          "support": 50
+        },
+        "BLOCK": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 15
+        }
+      },
+      "confusion_matrix": [
+        [
+          18,
+          0,
+          0,
+          0
+        ],
+        [
+          152,
+          0,
+          65,
+          0
+        ],
+        [
+          30,
+          0,
+          20,
+          0
+        ],
+        [
+          7,
+          0,
+          8,
+          0
+        ]
+      ],
+      "decision_distribution": {
+        "AUTO_EXECUTE": 207,
+        "HUMAN_REVIEW": 93
+      },
+      "n_escalated_by_affect": 0,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 236
+    },
+    "full": {
+      "baseline": "full",
+      "n": 300,
+      "accuracy": 0.13,
+      "macro_f1": 0.108,
+      "severity_mae": 1.233,
+      "risky_auto_exec_rate": 0.515,
+      "over_caution_rate": 0.0,
+      "per_class": {
+        "AUTO_EXECUTE": {
+          "precision": 0.093,
+          "recall": 1.0,
+          "f1": 0.17,
+          "support": 18
+        },
+        "SIMULATE_FIRST": {
+          "precision": 1.0,
+          "recall": 0.06,
+          "f1": 0.113,
+          "support": 217
+        },
+        "HUMAN_REVIEW": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 50
+        },
+        "BLOCK": {
+          "precision": 0.086,
+          "recall": 0.533,
+          "f1": 0.148,
+          "support": 15
+        }
+      },
+      "confusion_matrix": [
+        [
+          18,
+          0,
+          0,
+          0
+        ],
+        [
+          139,
+          13,
+          0,
+          65
+        ],
+        [
+          30,
+          0,
+          0,
+          20
+        ],
+        [
+          7,
+          0,
+          0,
+          8
+        ]
+      ],
+      "decision_distribution": {
+        "AUTO_EXECUTE": 194,
+        "BLOCK": 93,
+        "SIMULATE_FIRST": 13
+      },
+      "n_escalated_by_affect": 106,
+      "n_de_escalated_by_affect": 0,
+      "n_generalized_from_memory": 236
+    }
+  },
+  "guard_rejects_dummy": true,
+  "caveats": [
+    "Gold labels are heuristic, derived from hand-authored task metadata.",
+    "This is a mechanism sanity check on synthetic/template-generated data.",
+    "These results do NOT validate real-world safety effectiveness.",
+    "The original main-table results (DummyAgent) are NOT reproducible and should not be compared."
+  ]
+}
