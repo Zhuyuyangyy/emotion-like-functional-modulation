@@ -96,6 +96,7 @@ experiments/
 ├── annotation/              # Annotation protocol and materials
 └── results/                 # Experiment outputs
 
+
 papers/sci_affective_safety_calibration/
 ├── submission_pack_v0_4/    # Teacher-review submission pack
 │   ├── manuscript_v0_4_q2_attempt_final_review.md
@@ -184,6 +185,7 @@ python experiments/benchmark_v2/run_real_benchmark.py
 python experiments/benchmark_v2/run_rjudge_benchmark.py
 ```
 
+
 ## Running Tests
 
 ```bash
@@ -227,6 +229,7 @@ python -m pytest tests/test_v0_3.py -v
 | AffectiveBenchmark-100 | Synthetic subset | 100 | Generated from code |
 | R-Judge (external) | Real human-annotated | 571 | Public: [Lordog/R-Judge](https://github.com/Lordog/R-Judge) |
 | Blind annotation sample | Synthetic subset | 100 | Second annotator labels empty, kappa pending |
+
 
 ## Important Claims
 
