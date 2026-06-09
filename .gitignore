@@ -37,4 +37,6 @@ logs/
 # Local files
 *.local
 *.secret
+
+# Third-party data
 rjudge_data/

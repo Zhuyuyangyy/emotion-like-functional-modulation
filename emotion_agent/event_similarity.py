@@ -70,6 +70,8 @@ class EventSimilarity:
         for indicator in irreversible_indicators:
             if indicator in event_lower:
                 features["irreversible_action"] = max(features["irreversible_action"], 0.9)
+                # Irreversible actions on data imply data loss potential
+                features["data_loss_potential"] = max(features["data_loss_potential"], 0.7)
         for indicator in data_loss_indicators:
             if indicator in event_lower:
                 features["data_loss_potential"] = max(features["data_loss_potential"], 0.9)
