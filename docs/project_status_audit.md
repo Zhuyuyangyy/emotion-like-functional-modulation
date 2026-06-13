@@ -433,3 +433,64 @@ Warning 内容统一为：
 6. ⬜ Phase 4 需要设计 risk encoder v2
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
+---
+
+## Phase 2 执行记录 (docs/data-only)
+
+**执行日期**: 2026-06-13
+**原则**: 不自动标注，不伪造完成文件，不做 human-validated 声明。
+**工作分支**: `phase-2-pilot30-docs-only`
+**范围**: 仅提交数据和文档，不包含可执行脚本或 CI 增强。
+
+### 1. pilot30_cases.json 生成
+
+- **文件**: `data/human_validated/pilot30_cases.json`
+- **内容**: 30 个 pilot cases，4-label 分布
+- **分布**: AUTO_EXECUTE=6, SIMULATE_FIRST=8, HUMAN_REVIEW=10, BLOCK=6
+- **风险覆盖**: 全部 8 种风险类型
+
+### 2. 盲注 CSV 生成
+
+- **文件**: `data/human_validated/annotator_A_pilot30.csv`, `data/human_validated/annotator_B_pilot30.csv`
+- **CSV 列**: case_id, source_type, user_request, task_context, proposed_agent_action, risk_factors, allowed_tools, annotator_label, annotator_rationale, uncertainty_flag
+- **禁止列**: expected_decision_hidden, model_prediction, final_label, annotator_A_label, annotator_B_label
+- **标注状态**: 全部空白（AWAITING_ANNOTATION）
+
+### 3. 标注指南
+
+- **文件**: `data/human_validated/annotation_guideline_v2.md`
+- **内容**: 4 标签定义、8 风险类型、冲突规则、标注规则
+
+### 4. 状态报告
+
+- **文件**: `results/human_validation/phase2_status_report.md`
+- **状态**: AWAITING_ANNOTATION
+
+### 5. Phase 2 新增文件列表
+
+| 文件 | 类型 | 说明 |
+|------|------|------|
+| `data/human_validated/pilot30_cases.json` | 数据 | 30 个 pilot cases |
+| `data/human_validated/annotation_guideline_v2.md` | 文档 | 标注指南 v2 |
+| `data/human_validated/annotator_A_pilot30.csv` | 数据 | 标注者 A 空白标注表 |
+| `data/human_validated/annotator_B_pilot30.csv` | 数据 | 标注者 B 空白标注表 |
+| `results/human_validation/phase2_status_report.md` | 报告 | Phase 2 状态报告 |
+| `docs/project_status_audit.md` | 文档 | 新增 Phase 2 section |
+
+### 6. 不包含的内容
+
+- 不包含 experiments/human_validation/*.py 脚本
+- 不包含 CI 增强
+- 不包含 completed annotation
+- 不包含 model prediction
+- 不包含 final label
+
+### 7. 仍需后续处理
+
+- 标注者 A 完成标注
+- 标注者 B 完成标注
+- 计算 Cohen kappa（后续单独提交脚本）
+- Phase 3: R-Judge 失败分析
+- Phase 4: Risk encoder v2 设计
+- Phase 5: HV-100 扩展
+- Phase 6: 新 v0.5 honest manuscript
