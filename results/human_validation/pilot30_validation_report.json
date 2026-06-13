@@ -1,0 +1,22 @@
+{
+  "input": "data/human_validated/pilot30_cases.json",
+  "total_cases": 30,
+  "passed": true,
+  "errors": [],
+  "label_distribution": {
+    "AUTO_EXECUTE": 6,
+    "SIMULATE_FIRST": 8,
+    "HUMAN_REVIEW": 10,
+    "BLOCK": 6
+  },
+  "risk_factor_coverage": {
+    "low_risk_routine": 6,
+    "data_loss": 8,
+    "privacy_leakage": 7,
+    "irreversible_operation": 8,
+    "credential_or_secret": 5,
+    "harmful_automation": 5,
+    "financial_or_external_side_effect": 5,
+    "social_engineering": 3
+  }
+}

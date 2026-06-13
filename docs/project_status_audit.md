@@ -428,8 +428,107 @@ Warning 内容统一为：
 1. ✅ Phase 1.5 merge 到 main
 2. ✅ 旧论文包已标记为 historical preliminary pack
 3. ✅ 所有危险 claim 已列清单并加 warning
-4. ⬜ Phase 2 需要独立人工标注（pilot 30 条，双人盲注，Cohen's kappa）
+4. ✅ Phase 2 pilot30 数据、标注规范、盲注表、kappa 脚本已创建（AWAITING_ANNOTATION）
 5. ⬜ Phase 3 需要分析 R-Judge 失败原因
 6. ⬜ Phase 4 需要设计 risk encoder v2
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
+
+---
+
+## Phase 2 执行记录
+
+**执行日期**: 2026-06-09
+**原则**: 只建 pilot30 数据、标注规范、盲注表、kappa 脚本。不运行模型评估，不写论文结果，不进入 Human-Validated-100。不允许 agent 自己代标。
+**工作分支**: `phase-2-human-pilot30`
+
+### 1. 前置检查
+
+- DEPRECATION_NOTICE.md 存在
+- deprecated_claims_inventory.md 存在
+- submission_pack_v0_4 README 有 DEPRECATED warning
+- pytest 126/126 passed
+
+### 2. 目录结构
+
+新建目录：
+- `data/human_validated/`
+- `experiments/human_validation/`
+- `results/human_validation/`
+
+### 3. Annotation Guideline v2
+
+- **文件**: `data/human_validated/annotation_guideline_v2.md`
+- **内容**: 项目目标、四类 decision label 定义、8 类风险 taxonomy（每类含定义/3 正例/3 反例/混淆点/推荐倾向）、冲突处理规则、标注者规则
+
+### 4. Pilot30 Cases
+
+- **文件**: `data/human_validated/pilot30_cases.json`
+- **数量**: 30 条
+- **Label 分布**: AUTO_EXECUTE 6 条, SIMULATE_FIRST 8 条, HUMAN_REVIEW 10 条, BLOCK 6 条
+- **Risk taxonomy 覆盖**: data_loss, privacy_leakage, credential_or_secret, social_engineering, harmful_automation, irreversible_operation, financial_or_external_side_effect, low_risk_routine
+- **source_type**: public_issue_derived, public_security_scenario_derived, handcrafted_agent_failure_case, low_risk_control
+- **无私人数据、无真实凭证、无禁止字段**
+
+### 5. 数据验证脚本
+
+- **文件**: `experiments/human_validation/validate_pilot30_cases.py`
+- **检查项**: 30 条、case_id 格式、source_type 白名单、split/version、label 四类、risk_factors 白名单、必需字段、禁止字段、隐私模式
+
+### 6. 双人盲注表
+
+- **文件**: `experiments/human_validation/generate_blind_annotation_sheets.py`
+- **输出**: `annotator_A_pilot30.csv`, `annotator_B_pilot30.csv`
+- **禁止列**: expected_decision_hidden, model_prediction, final_label, annotator_A_label, annotator_B_label
+- **空字段**: annotator_label, annotator_rationale, uncertainty_flag
+
+### 7. Kappa 脚本
+
+- **文件**: `experiments/human_validation/compute_pilot_kappa.py`
+- **行为**: completed 文件不存在时输出 AWAITING_ANNOTATION 并 exit 1
+- **计算**: percent_agreement, Cohen's kappa, confusion_matrix, per_label_agreement, disagreement_cases
+- **不自动生成 final_label**
+
+### 8. Phase 2 状态说明
+
+- **文件**: `results/human_validation/phase2_status_report.md`
+- **当前状态**: AWAITING_ANNOTATION
+
+### 9. CI 增强
+
+- **修改**: `.github/workflows/tests.yml`
+- **新增步骤**: py_compile 三个脚本、validate_pilot30_cases、generate_blind_annotation_sheets、compute_pilot_kappa (允许 exit 1)
+
+### 10. Phase 2 新增/修改文件列表
+
+| 文件 | 类型 | 说明 |
+|------|------|------|
+| `data/human_validated/annotation_guideline_v2.md` | 文档 | 标注规范 v2 |
+| `data/human_validated/pilot30_cases.json` | 数据 | 30 条 pilot 样本 |
+| `data/human_validated/annotator_A_pilot30.csv` | 数据 | 标注者 A 空白盲注表 |
+| `data/human_validated/annotator_B_pilot30.csv` | 数据 | 标注者 B 空白盲注表 |
+| `experiments/human_validation/validate_pilot30_cases.py` | 脚本 | 数据验证 |
+| `experiments/human_validation/generate_blind_annotation_sheets.py` | 脚本 | 生成盲注表 |
+| `experiments/human_validation/compute_pilot_kappa.py` | 脚本 | 计算 Cohen's kappa |
+| `results/human_validation/pilot30_validation_report.json` | 结果 | 验证报告 |
+| `results/human_validation/phase2_status_report.md` | 报告 | Phase 2 状态说明 |
+| `.github/workflows/tests.yml` | 修改 | CI 增强 |
+| `docs/project_status_audit.md` | 修改 | 新增 Phase 2 section |
+
+### 11. 完整性确认
+
+- 无私人数据
+- 无已完成标注
+- 无模型预测
+- 无 human-validated 声称
+- 无 final_label
+- 无模型评估执行
+- 无假 kappa 结果
+
+### 12. 下一步需要的人工操作
+
+1. 两个独立标注者分别填写 `annotator_A_pilot30.csv` 和 `annotator_B_pilot30.csv`
+2. 将填写完成的文件重命名为 `annotator_A_pilot30_completed.csv` 和 `annotator_B_pilot30_completed.csv`
+3. 放入 `data/human_validated/` 目录
+4. 运行 `python experiments/human_validation/compute_pilot_kappa.py`
+5. 根据 kappa 结果决定是否进入 Phase 5 (Human-Validated-100)

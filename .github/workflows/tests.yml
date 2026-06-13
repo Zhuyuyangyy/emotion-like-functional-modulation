@@ -30,3 +30,21 @@ jobs:
       - name: Run tests
         run: |
           python -m pytest tests/ -v --tb=short
+
+      - name: Compile Phase 2 scripts
+        run: |
+          python -m py_compile experiments/human_validation/validate_pilot30_cases.py
+          python -m py_compile experiments/human_validation/generate_blind_annotation_sheets.py
+          python -m py_compile experiments/human_validation/compute_pilot_kappa.py
+
+      - name: Validate pilot30 data
+        run: |
+          python experiments/human_validation/validate_pilot30_cases.py
+
+      - name: Generate blind annotation sheets
+        run: |
+          python experiments/human_validation/generate_blind_annotation_sheets.py
+
+      - name: Check kappa script (expect AWAITING_ANNOTATION)
+        run: |
+          python experiments/human_validation/compute_pilot_kappa.py || test $? -eq 1
