@@ -433,3 +433,80 @@ Warning 内容统一为：
 6. ⬜ Phase 4 需要设计 risk encoder v2
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
+
+---
+
+## Phase 2 执行记录
+
+**执行日期**: 2026-06-13
+**原则**: 不自动标注，不伪造完成文件，不做 human-validated 声明直到 kappa 计算完成。
+**工作分支**: `phase-2-human-pilot30-v2`
+**重建原因**: PR #7 和 PR #8 的远端 raw 文件损坏（Write 工具 / heredoc 写入链路问题），使用 Python builder 脚本重建。
+
+### 1. 文件写入链路修复 ✅
+
+- **问题**: 使用 Write 工具或 heredoc 写入的文件，本地 `wc -l` 正常，但 GitHub raw 显示压缩为 1-2 行
+- **根因**: 提交进 Git 的文件本身就是被压缩/破坏过的
+- **修复**: 使用 `scripts/build_phase2_files.py`，通过 `f.write(line + "\n")` 逐行写入，确保每个换行符都是真实的 LF
+
+### 2. pilot30_cases.json 生成 ✅
+
+- **文件**: `data/human_validated/pilot30_cases.json`
+- **内容**: 30 个 pilot cases，4-label 分布
+- **分布**: AUTO_EXECUTE=6, SIMULATE_FIRST=8, HUMAN_REVIEW=10, BLOCK=6
+- **风险覆盖**: 全部 8 种风险类型
+
+### 3. validate_pilot30_cases.py ✅
+
+- **文件**: `experiments/human_validation/validate_pilot30_cases.py`
+- **功能**: 验证 pilot30_cases.json 的 schema（30 cases, case_id 格式, source_type, label, risk_factors, allowed_tools, version, privacy patterns）
+
+### 4. generate_blind_annotation_sheets.py ✅
+
+- **文件**: `experiments/human_validation/generate_blind_annotation_sheets.py`
+- **功能**: 从 pilot30_cases.json 生成双人空白标注 CSV
+- **输出**: annotator_A_pilot30.csv, annotator_B_pilot30.csv
+- **CSV 列**: case_id, source_type, user_request, task_context, proposed_agent_action, risk_factors, allowed_tools, annotator_label, annotator_rationale, uncertainty_flag
+- **禁止列**: expected_decision_hidden, model_prediction, final_label, annotator_A_label, annotator_B_label
+
+### 5. compute_pilot_kappa.py ✅
+
+- **文件**: `experiments/human_validation/compute_pilot_kappa.py`
+- **功能**: 计算双人标注的 Cohen's kappa
+- **当前状态**: 输出 AWAITING_ANNOTATION（标注未完成），exit code 1
+
+### 6. annotation_guideline_v2.md ✅
+
+- **文件**: `data/human_validated/annotation_guideline_v2.md`
+- **内容**: 4 标签定义、8 风险类型（各含正/负例）、冲突规则、标注规则
+
+### 7. CI 增强 ✅
+
+- **文件**: `.github/workflows/tests.yml`
+- **新增步骤**: py_compile, validate, generate, kappa (expect AWAITING_ANNOTATION)
+
+### 8. Phase 2 新增文件列表
+
+| 文件 | 类型 | 说明 |
+|------|------|------|
+| `scripts/build_phase2_files.py` | 脚本 | Phase 2 文件生成器（唯一批准的写入方式） |
+| `data/human_validated/pilot30_cases.json` | 数据 | 30 个 pilot cases |
+| `data/human_validated/annotation_guideline_v2.md` | 文档 | 标注指南 v2 |
+| `data/human_validated/annotator_A_pilot30.csv` | 数据 | 标注者 A 空白标注表 |
+| `data/human_validated/annotator_B_pilot30.csv` | 数据 | 标注者 B 空白标注表 |
+| `experiments/human_validation/validate_pilot30_cases.py` | 脚本 | 验证 pilot30 数据 |
+| `experiments/human_validation/generate_blind_annotation_sheets.py` | 脚本 | 生成空白标注表 |
+| `experiments/human_validation/compute_pilot_kappa.py` | 脚本 | 计算 Cohen's kappa |
+| `results/human_validation/phase2_status_report.md` | 报告 | Phase 2 状态报告 |
+| `.github/workflows/tests.yml` | 配置 | CI 增强（Phase 2 步骤） |
+| `docs/project_status_audit.md` | 文档 | 新增 Phase 2 section |
+
+### 9. 仍需后续处理
+
+- ⬜ Annotator A 完成标注
+- ⬜ Annotator B 完成标注
+- ⬜ 计算 Cohen's kappa
+- ⬜ Phase 3: R-Judge 失败分析
+- ⬜ Phase 4: Risk encoder v2 设计
+- ⬜ Phase 5: HV-100 扩展
+- ⬜ Phase 6: 新 v0.5 honest manuscript
