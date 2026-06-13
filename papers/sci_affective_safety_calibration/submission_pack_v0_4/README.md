@@ -1,7 +1,18 @@
 # Submission Pack v0.4 — Teacher Review Pack
 
+> **DEPRECATED — HISTORICAL PRELIMINARY PACK**
+>
+> This submission pack is **historical and preliminary**. It should **NOT** be used as a current Q2-ready submission package.
+>
+> - **Deprecated naming**: "Semi-Real-300" is deprecated and misleading; the dataset is synthetic/template-generated (60 unique templates). See `DEPRECATION_NOTICE.md`.
+> - **Not Q2-ready**: The "Q2 Readiness: BORDERLINE+" assessment below is a historical preliminary rating, not current readiness. The Phase 0–1R audit revealed the main table is not reproducible and R-Judge external validation failed.
+> - **Not independently reproducible**: Main-table results (Acc=0.753, Composite=0.860) cannot be reproduced from the current repository. They are historical prior results.
+> - **See**: `DEPRECATION_NOTICE.md` and `docs/project_status_audit.md` for the current project status.
+>
+> No experimental results, figures, or metrics have been modified. Only deprecation notices and warnings have been added.
+
 **Date**: 2026-05-28
-**Q2 Readiness**: BORDERLINE+
+**Q2 Readiness**: BORDERLINE+ *(historical preliminary assessment — see deprecation notice above)*
 **Recommendation**: Q2 cautious attempt / Q3 safer route
 
 ---

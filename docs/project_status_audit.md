@@ -329,7 +329,107 @@ gold labels 来自 `RISK_TO_DECISION` 规则映射（项目自己写的确定性
 
 ### 9. 仍需后续处理
 
-- `submission_pack_v0_4/` 内的 manuscript 仍包含旧主表数字和 "Semi-Real-300" 用法（Phase 2 处理）
-- `dataset_card.md`（旧版）仍使用 "semi-real" 描述（Phase 2 处理）
-- `q2_acceptance_gate.md` 的 BORDERLINE+ 评级未更新（Phase 2 处理）
+- `submission_pack_v0_4/` 内的 manuscript 仍包含旧主表数字和 "Semi-Real-300" 用法（Phase 1.5 已加降级声明）
+- `dataset_card.md`（旧版）仍使用 "semi-real" 描述（Phase 1.5 已加 warning）
+- `q2_acceptance_gate.md` 的 BORDERLINE+ 评级未更新（Phase 1.5 已标记为 historical preliminary assessment）
 - 无独立人类标注（Phase 2: pilot 30 条，双人标注，算 kappa）
+
+---
+
+## Phase 1.5 执行记录
+
+**执行日期**: 2026-06-09
+**原则**: 不改实验结果，不加功能，只给旧 submission pack 加降级声明和 warning。
+**工作分支**: `phase-1-5-deprecate-submission-pack`
+
+### 1. 建立 DEPRECATION_NOTICE.md ✅
+
+- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/DEPRECATION_NOTICE.md`
+- **内容**: 明确声明此 pack 是 historical/preliminary，不应作为当前 Q2-ready submission package；Semi-Real-300 命名弃用；主表结果不可复现；Acc=0.753/Composite=0.860 是历史结果；Q2 BORDERLINE+ 是历史初稿评估；标注可靠性未完成；R-Judge 外部验证失败
+
+### 2. 给旧论文包 README 加顶部警告 ✅
+
+- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/README.md`
+- **修改**: 在标题下方加入醒目 blockquote warning，标注 Deprecated naming / Not Q2-ready / Not independently reproducible / See DEPRECATION_NOTICE.md
+- **Q2 Readiness 行**: 加注 "(historical preliminary assessment — see deprecation notice above)"
+
+### 3. 给 13 个危险文件顶部加 warning ✅
+
+以下文件均在标题下方加入了统一的 deprecation warning：
+
+1. `q2_acceptance_gate.md`
+2. `q2_submission_strategy.md`
+3. `q2_blocker_closure_report.md`
+4. `phase5_acceptance_audit.md`
+5. `dataset_card.md`
+6. `data_authenticity_statement.md`
+7. `numeric_consistency_audit_v0_3.md`
+8. `manuscript_v0_4_q2_attempt.md`
+9. `manuscript_v0_4_q2_attempt_blind.md`
+10. `manuscript_v0_4_q2_attempt_final_review.md`
+11. `manuscript_v0_4_q2_attempt_blind_final_review.md`
+12. `cover_letter_draft.md`
+13. `论文投稿说明_中文.md`
+
+Warning 内容统一为：
+> **Deprecated historical draft.** The claims in this file were written before the Phase 0–1R audit. Do not treat Semi-Real-300, Q2 BORDERLINE+, or the old main-table metrics as current reproducible evidence.
+
+### 4. 生成 deprecated_claims_inventory.md ✅
+
+- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/deprecated_claims_inventory.md`
+- **内容**: 完整列出 96 处危险 claim，按类别分：
+  - Semi-Real-300 occurrences: 59 处
+  - BORDERLINE+ occurrences: 16 处
+  - Acc=0.753 / Composite=0.860 occurrences: 2 处
+  - Q2-ready / Q2 cautious attempt occurrences: 14 处
+  - "semi-real" claim occurrences: 5 处
+- 每项包含 file path、line number、phrase、status (deprecated / historical)
+
+### 5. 未修改实验结果声明
+
+**确认**: Phase 1.5 没有修改任何实验结果 JSON、figure、metrics。所有修改仅限于添加 deprecation notice 和 warning 文本。
+
+### 6. 旧论文包状态变更
+
+| 方面 | Phase 1R 前 | Phase 1.5 后 |
+|------|------------|-------------|
+| submission_pack_v0_4 定位 | Active submission pack | **Historical preliminary pack** |
+| Semi-Real-300 命名 | 作为正式名称使用 | 标记为 deprecated/misleading |
+| Q2 BORDERLINE+ | 作为当前就绪评估 | 标记为 historical preliminary assessment |
+| Acc=0.753 / Composite=0.860 | 作为当前结果引用 | 标记为 historical prior results |
+| DEPRECATION_NOTICE.md | 不存在 | 存在 |
+| deprecated_claims_inventory.md | 不存在 | 存在（96 处清单） |
+| 文件 warning | 无 | 14 个文件已加 warning |
+
+### 7. Phase 1.5 新增/修改文件列表
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `submission_pack_v0_4/DEPRECATION_NOTICE.md` | 新建 | 降级声明 |
+| `submission_pack_v0_4/deprecated_claims_inventory.md` | 新建 | 危险 claim 清单 |
+| `submission_pack_v0_4/README.md` | 修改 | 加顶部 warning block |
+| `submission_pack_v0_4/q2_acceptance_gate.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/q2_submission_strategy.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/q2_blocker_closure_report.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/phase5_acceptance_audit.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/dataset_card.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/data_authenticity_statement.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/numeric_consistency_audit_v0_3.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/manuscript_v0_4_q2_attempt.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/manuscript_v0_4_q2_attempt_blind.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/manuscript_v0_4_q2_attempt_final_review.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/manuscript_v0_4_q2_attempt_blind_final_review.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/cover_letter_draft.md` | 修改 | 加 deprecation warning |
+| `submission_pack_v0_4/论文投稿说明_中文.md` | 修改 | 加 deprecation warning |
+| `docs/project_status_audit.md` | 修改 | 新增 Phase 1.5 section |
+
+### 8. 进入 Phase 2 前必须完成的条件
+
+1. ✅ Phase 1.5 merge 到 main
+2. ✅ 旧论文包已标记为 historical preliminary pack
+3. ✅ 所有危险 claim 已列清单并加 warning
+4. ⬜ Phase 2 需要独立人工标注（pilot 30 条，双人盲注，Cohen's kappa）
+5. ⬜ Phase 3 需要分析 R-Judge 失败原因
+6. ⬜ Phase 4 需要设计 risk encoder v2
+7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
+8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
