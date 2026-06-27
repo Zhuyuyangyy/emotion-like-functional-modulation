@@ -40,3 +40,10 @@ logs/
 
 # Third-party data
 rjudge_data/
+
+# Generated R-Judge v2 results (reproduce with run_failure_reproduction.py)
+results/rjudge_v2/*.jsonl
+results/rjudge_v2/*.json
+results/rjudge_v2/*.csv
+results/rjudge_v2/*.md
+!results/rjudge_v2/.gitkeep
