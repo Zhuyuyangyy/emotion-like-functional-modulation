@@ -429,8 +429,8 @@ Warning 内容统一为：
 2. ✅ 旧论文包已标记为 historical preliminary pack
 3. ✅ 所有危险 claim 已列清单并加 warning
 4. ⬜ Phase 2 需要独立人工标注（pilot 30 条，双人盲注，Cohen's kappa）
-5. ✅ Phase 3: R-Judge Failure Reproduction Pack (PR #13 open)
-6. ⬜ Phase 4 需要实现 risk encoder v2 (PR #14 pending)
+5. ✅ Phase 3: R-Judge Failure Reproduction Pack (PR #13 open) — 待跑 571 条官方数据后出 failure matrix
+6. ✅ Phase 4: Risk Encoder v2 MVP (PR #14 open) — 待修 injection branch 与 threshold 双重计算后合入
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
 ---
