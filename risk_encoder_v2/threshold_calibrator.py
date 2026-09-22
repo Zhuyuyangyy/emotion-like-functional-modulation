@@ -64,6 +64,12 @@ class ThresholdCalibrator:
         """
         Calibrate composite score to a decision.
 
+        The risk-type adjustment is applied exactly ONCE, on the score side:
+        ``calibrated_score = composite_score - adjustment``. Decisions are made
+        from the calibrated score against the FIXED base thresholds. Previously
+        the same adjustment was also applied to lower the thresholds, which
+        double-counted a single risk-type signal and caused over-escalation.
+
         Args:
             composite_score: Aggregated risk score [0, 1]
             dominant_risk: Which detector contributed most
@@ -73,7 +79,7 @@ class ThresholdCalibrator:
         Returns dict with:
           - decision: AUTO_EXECUTE | SIMULATE_FIRST | HUMAN_REVIEW | BLOCK
           - risk_score: raw composite score
-          - calibrated_score: adjusted score
+          - calibrated_score: risk-type-adjusted score
           - risk_types: list of detected risk types
           - threshold_used: which threshold was applied
         """
@@ -82,47 +88,42 @@ class ThresholdCalibrator:
         if score_breakdown is None:
             score_breakdown = {}
 
-        # Apply threshold adjustment based on dominant risk
+        # Single risk-type adjustment: raise the effective score for
+        # adversarial/irreversible dominant types (negative adjustment).
         adjustment = self.THRESHOLD_ADJUSTMENTS.get(dominant_risk, 0.0)
-
-        # Additional adjustment: if multiple risk types are detected,
-        # lower thresholds further
+        # Additional penalty: multiple distinct risk types → more caution.
         if len(risk_types) > 1:
             adjustment -= 0.05 * (len(risk_types) - 1)
 
-        # Compute calibrated score
+        # Compute calibrated score (adjustment applied once, score-side only)
         calibrated_score = min(1.0, composite_score - adjustment)
 
-        # Map to decision using adjusted thresholds
-        adjusted_thresholds = {
-            k: max(0.0, v + adjustment)
-            for k, v in self.BASE_THRESHOLDS.items()
-        }
-
-        # Special case: high injection score always escalates
+        # Special cases: high-precision expert overrides.
+        # NOTE: >= 0.85 must be checked BEFORE >= 0.55 — otherwise the
+        # BLOCK branch is unreachable (previous bug).
         injection_score = score_breakdown.get("injection", 0.0)
         se_score = score_breakdown.get("social_engineering", 0.0)
 
-        if injection_score >= 0.55:
-            decision = HUMAN_REVIEW
-            threshold_used = "injection_override"
-        elif injection_score >= 0.85:
+        if injection_score >= 0.85:
             decision = BLOCK
-            threshold_used = "injection_override"
+            threshold_used = "injection_override_BLOCK"
+        elif injection_score >= 0.55:
+            decision = HUMAN_REVIEW
+            threshold_used = "injection_override_HUMAN_REVIEW"
         elif se_score >= 0.6:
             decision = HUMAN_REVIEW
             threshold_used = "se_override"
         else:
-            # Standard threshold-based decision
-            if calibrated_score >= adjusted_thresholds["BLOCK"]:
+            # Standard threshold-based decision against FIXED base thresholds
+            if calibrated_score >= self.BASE_THRESHOLDS["BLOCK"]:
                 decision = BLOCK
-                threshold_used = f"adjusted_BLOCK({adjusted_thresholds['BLOCK']:.2f})"
-            elif calibrated_score >= adjusted_thresholds["HUMAN_REVIEW"]:
+                threshold_used = f"BLOCK({self.BASE_THRESHOLDS['BLOCK']:.2f})"
+            elif calibrated_score >= self.BASE_THRESHOLDS["HUMAN_REVIEW"]:
                 decision = HUMAN_REVIEW
-                threshold_used = f"adjusted_HUMAN_REVIEW({adjusted_thresholds['HUMAN_REVIEW']:.2f})"
-            elif calibrated_score >= adjusted_thresholds["SIMULATE_FIRST"]:
+                threshold_used = f"HUMAN_REVIEW({self.BASE_THRESHOLDS['HUMAN_REVIEW']:.2f})"
+            elif calibrated_score >= self.BASE_THRESHOLDS["SIMULATE_FIRST"]:
                 decision = SIMULATE_FIRST
-                threshold_used = f"adjusted_SIMULATE_FIRST({adjusted_thresholds['SIMULATE_FIRST']:.2f})"
+                threshold_used = f"SIMULATE_FIRST({self.BASE_THRESHOLDS['SIMULATE_FIRST']:.2f})"
             else:
                 decision = AUTO_EXECUTE
                 threshold_used = "below_threshold"

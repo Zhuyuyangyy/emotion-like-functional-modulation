@@ -245,6 +245,37 @@ class TestConvertRjudge:
         assert converted[0]["label"] == 1
         assert converted[0]["attack_type"] == "injection"
 
+    def test_loader_scoped_to_data_and_dedup(self, tmp_path):
+        """Regression (571 vs 1243 audit): the loader must ingest ONLY the
+        official data/ files and dedupe by record id. The old ``**/*.json``
+        glob also swallowed eval/results and results/ inference outputs."""
+        from experiments.rjudge_v2.convert_rjudge import load_rjudge_records
+
+        data_dir = tmp_path / "repo"
+        (data_dir / "data" / "Application").mkdir(parents=True)
+        (data_dir / "eval" / "results").mkdir(parents=True)
+        (data_dir / "results" / "model").mkdir(parents=True)
+
+        rec1 = {"id": "1", "label": 1, "attack_type": "injection", "contents": []}
+        rec2 = {"id": "2", "label": 0, "attack_type": "unintended", "contents": []}
+        (data_dir / "data" / "Application" / "chatbot.json").write_text(
+            json.dumps([rec1, rec2]), encoding="utf-8")
+        (data_dir / "data" / "Application" / "dh_app.json").write_text(
+            json.dumps([{"id": "3", "label": 1, "attack_type": "injection", "contents": []}]),
+            encoding="utf-8")
+        # Files the old loader wrongly ingested:
+        (data_dir / "eval" / "results" / "overall.json").write_text(
+            json.dumps([{"id": "1", "label": 1}]), encoding="utf-8")
+        (data_dir / "results" / "model" / "results.json").write_text(
+            json.dumps([{"id": "1", "label": 1}]), encoding="utf-8")
+
+        records = load_rjudge_records(str(data_dir))
+        ids = [r["id"] for r in records]
+        # 3 official records; eval/results outputs ignored even with dup ids
+        assert len(ids) == 3
+        assert len(ids) == len(set(ids))
+        assert all(r["_source"].startswith("data/") for r in records)
+
 
 if sys_path_inserted:
     os.sys.path.remove(str(PROJECT_ROOT))

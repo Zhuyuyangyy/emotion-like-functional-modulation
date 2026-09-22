@@ -211,28 +211,43 @@ class SemanticRiskEncoder:
 
         Returns (risk_score, category_scores) where risk_score is a weighted
         aggregate of category scores.
+
+        Division of labor (avoids double-counting a single attack twice):
+        - ``prompt_injection`` and ``social_engineering`` are delegated to the
+          dedicated high-precision detectors (InjectionDetector /
+          SocialEngineeringDetector), so they are NOT weighted into the
+          semantic composite here. They remain in ``category_scores`` purely
+          as diagnostic/evidence signal.
+        - The composite covers knowledge/operational risk categories only.
         """
         category_scores = self.encode(text)
 
-        # Weights — injection and social engineering are critical for R-Judge
+        # Weights — operational/knowledge risk categories only.
+        # prompt_injection & social_engineering intentionally excluded from the
+        # composite: they are scored once by their dedicated expert detectors.
         weights = {
-            "irreversible_action": 0.15,
-            "data_loss_potential": 0.15,
-            "external_send": 0.10,
-            "permission_change": 0.10,
-            "financial_impact": 0.10,
-            "privacy_exposure": 0.15,
-            "prompt_injection": 0.15,
-            "social_engineering": 0.10,
+            "irreversible_action": 0.20,
+            "data_loss_potential": 0.20,
+            "external_send": 0.13,
+            "permission_change": 0.13,
+            "financial_impact": 0.13,
+            "privacy_exposure": 0.21,
         }
 
         total = sum(category_scores.get(k, 0.0) * w for k, w in weights.items())
-        # Normalize by sum of weights (1.0)
+        # Weights sum to 1.0 → risk_score is a normalized aggregate.
         risk_score = min(1.0, total)
 
         return risk_score, category_scores
 
     def get_risk_types(self, category_scores: Dict[str, float],
                        threshold: float = 0.2) -> List[str]:
-        """Return risk categories with score above threshold."""
-        return [k for k, v in sorted(category_scores.items()) if v >= threshold]
+        """Return risk categories with score above threshold.
+
+        ``prompt_injection`` and ``social_engineering`` are excluded here —
+        they are owned by the dedicated expert detectors, not the semantic
+        encoder, to keep the risk-type list free of double-counted signals.
+        """
+        delegated = {"prompt_injection", "social_engineering"}
+        return [k for k, v in sorted(category_scores.items())
+                if v >= threshold and k not in delegated]
