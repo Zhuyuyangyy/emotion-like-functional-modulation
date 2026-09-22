@@ -529,3 +529,21 @@ Warning 内容统一为：
 
 - 文档:`docs/design/phase5_v09_affective_core_design.md`
 - 三处机制缺陷已定位(见文档 §0);协议冻结:AffectiveCore / Episodic Retrieval / PolicyModulator / 连续 PE 学习 / 在线闭环 / Different-History & Same-Task benchmark。
+
+### 5. V0.9 实现完成(根据批准的设计)
+
+- 协议落地:`emotion_agent/affective_core.py`(online PE 更新+decay)、`policy_modulator.py`(budget/阈值调制,单次计分)、`v09_agent.py`(闭环 Agent);`semantic_risk_map.py` 改连续 PE 学习;`experience_memory.py` 增加 `record_outcome`/`retrieve`(任务语义检索,修复 memory 未参与决策)。
+- Different-History/Same-Task:"相同任务/相同客观风险,不同历史 → 不同策略"成立。
+
+| 指标 | 结果 |
+|---|---|
+| History Sensitivity | 1.000 [1.0, 1.0] |
+| State Persistence | 1.000 |
+| Recovery Lag | 1.14 步 [1.0, 1.4] |
+| Decay Half-life(拟合) | 40.4 步(≈内置 40) |
+| Generalization monotone | 1.00 |
+| Neg/Pos Asymmetry | 1.0(对称 lr 下单步冲击相等,负性偏差体现在恢复动力学) |
+
+- 图:`results/benchmark_v3/affect_state_trajectory.png`、`affect_decay_recovery.png`(可复现,均已 gitignore)。
+- 测试:新增 `tests/test_v09_affective_core.py` 12 例,全套 **192 passed**。
+- 说明:部分模板 r_base 为 0.0(如 "Trust anonymous PR"),即 V2 TF-IDF 对该短句评估为无风险——与 indirect-injection 同源的词法局限,留待 V3 embedding。

@@ -34,6 +34,8 @@ class SemanticRiskMap:
         self.risk_vectors: Dict[str, Dict[str, float]] = {}
         self.experience_history: Dict[str, List[Dict]] = {}
         self.risk_adjustments: Dict[str, float] = {}
+        # V0.9: 上一轮的风险预期基线,用于 continuous prediction-error 学习。
+        self.expected_risk: Dict[str, float] = {}
     
     def encode_event(self, event_description: str) -> Dict[str, float]:
         """
@@ -81,22 +83,29 @@ class SemanticRiskMap:
         risk_actual: float
     ) -> None:
         """
-        Update the risk adjustment factor based on experience.
+        Update the risk adjustment factor based on experience (V0.9).
 
-        Positive experiences reduce risk perception.
-        Negative experiences increase risk perception.
+        Continuous prediction-error learning: the update is proportional to
+        ``PE = risk_actual - expected``, so a 0.55-risk failure and a 0.99-risk
+        failure no longer receive the same update (previously both got a fixed
+        +0.15). Positive experiences (actual risk below expectation) reduce
+        risk perception; negative experiences increase it.
         """
-        current_adjustment = self.risk_adjustments.get(event_description, 0.0)
-
-        if outcome in ["success", "partial"]:
-            adjustment_delta = -0.08  # 更激进的正反馈
-        elif outcome == "failure":
-            adjustment_delta = 0.15  # 更激进的负反馈
+        expected = self.expected_risk.get(event_description, 0.5)
+        lr = 0.25
+        if outcome == "failure":
+            pe = risk_actual - expected
+        elif outcome in ["success", "partial"]:
+            pe = risk_actual - expected  # usually negative → decrease
         else:
-            adjustment_delta = 0.0
+            pe = 0.0
 
-        new_adjustment = max(-0.5, min(0.5, current_adjustment + adjustment_delta))  # 扩大钳制范围
+        delta = lr * pe
+        current_adjustment = self.risk_adjustments.get(event_description, 0.0)
+        new_adjustment = max(-0.6, min(0.6, current_adjustment + delta))
         self.risk_adjustments[event_description] = new_adjustment
+        # 更新下一轮预期基线(学习后的风险感知)
+        self.expected_risk[event_description] = max(0.0, min(1.0, 0.5 + new_adjustment))
     
     def calculate_risk_distance(
         self,
