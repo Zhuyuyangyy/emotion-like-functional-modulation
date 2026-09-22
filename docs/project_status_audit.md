@@ -494,3 +494,38 @@ Warning 内容统一为：
 - Phase 4: Risk encoder v2 实现 (PR #14, pending)
 - Phase 5: HV-100 扩展
 - Phase 6: 新 v0.5 honest manuscript
+
+---
+
+## Phase 4.1 执行记录 (2026-09-22)
+
+**范围**: 按 review 的 P0 优先级执行;本地分支 `phase41-main`(= main + #13)、`phase41-pr14`(= #14 rebase 到 #13 后 + 修复),待 token 推送后合入。
+
+### 1. R-Judge 计数审计:571 vs 569(钉死)
+
+- 旧 loader `glob("**/*.json")` 会把 `eval/results`、`results/**`、`config` 全吞进 → **1243 条**。
+- 官方 repo `data/` 目录 = **571 条**,id 全唯一;ACL 论文 = **569**(论文期快照,2024-10-05 "update data" 加了 2 条 injection);NEXUS(2026)= 564(571 剔除 7 条泄露)。
+- 修复:`convert_rjudge.py` loader 限定 `data/**` + id 去重 + `_source` 溯源;产出 **571 条**并透明记录 569/571/564 差异。
+- 结论:基准以官方数据目录(571)钉死;论文对照数字在 matrix 中列出。
+
+### 2. #14 P0 修复(3 处)
+
+- `threshold_calibrator.py`:`>=0.85 → BLOCK` 分支不可达(被 `>=0.55 → HUMAN_REVIEW` 拦截),已重排并加回归测试。
+- `threshold_calibrator.py`:`adjustment` 双重计算(既提分又降阈值),改为只作用 score 一次,决策对固定 base thresholds。
+- `semantic_risk_encoder.py`:`prompt_injection` / `social_engineering` 移出加权合成(交给专用 expert detector),避免同一攻击被计分两次。
+
+### 3. 官方 571 条 V1/V2 结果(matrix:`results/rjudge_v2/v1_v2_failure_matrix.md`)
+
+| Baseline | Unsafe recall | Evidence coverage | Over-escalation |
+|---|---|---|---|
+| V1 [plain] | 0.0000 | 0.00 | — |
+| V1 [full] | 0.2558 | 0.33 | 0.54 |
+| V2 | 0.0066 | **1.00** | **0.196** |
+
+- 零覆盖修复:unsafe 中 zero-risk 71.8% → 0%;over-escalation 减半。
+- V2 只抓 2/301 unsafe:**R-Judge injection 是间接注入**(恶意指令藏在环境载荷,礼貌措辞),TF-IDF + regex 抓不到 → 印证论文"多维推理"结论,V2 定位为 heuristic hybrid baseline。
+
+### 4. V0.9 设计(Phase 5 协议,待审)
+
+- 文档:`docs/design/phase5_v09_affective_core_design.md`
+- 三处机制缺陷已定位(见文档 §0);协议冻结:AffectiveCore / Episodic Retrieval / PolicyModulator / 连续 PE 学习 / 在线闭环 / Different-History & Same-Task benchmark。
