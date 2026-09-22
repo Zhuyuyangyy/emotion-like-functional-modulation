@@ -429,8 +429,8 @@ Warning 内容统一为：
 2. ✅ 旧论文包已标记为 historical preliminary pack
 3. ✅ 所有危险 claim 已列清单并加 warning
 4. ⬜ Phase 2 需要独立人工标注（pilot 30 条，双人盲注，Cohen's kappa）
-5. ⬜ Phase 3 需要分析 R-Judge 失败原因
-6. ⬜ Phase 4 需要设计 risk encoder v2
+5. ✅ Phase 3: R-Judge Failure Reproduction Pack (PR #13 open)
+6. ⬜ Phase 4 需要实现 risk encoder v2 (PR #14 pending)
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
 ---
@@ -490,7 +490,7 @@ Warning 内容统一为：
 - 标注者 A 完成标注
 - 标注者 B 完成标注
 - 计算 Cohen kappa（后续单独提交脚本）
-- Phase 3: R-Judge 失败分析
-- Phase 4: Risk encoder v2 设计
+- Phase 3: R-Judge Failure Reproduction Pack (PR #13, open)
+- Phase 4: Risk encoder v2 实现 (PR #14, pending)
 - Phase 5: HV-100 扩展
 - Phase 6: 新 v0.5 honest manuscript
