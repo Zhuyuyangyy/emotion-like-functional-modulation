@@ -344,12 +344,12 @@ gold labels 来自 `RISK_TO_DECISION` 规则映射（项目自己写的确定性
 
 ### 1. 建立 DEPRECATION_NOTICE.md ✅
 
-- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/DEPRECATION_NOTICE.md`
+- **文件**: `archive/research_packs_v0_4/submission_pack_v0_4/DEPRECATION_NOTICE.md`
 - **内容**: 明确声明此 pack 是 historical/preliminary，不应作为当前 Q2-ready submission package；Semi-Real-300 命名弃用；主表结果不可复现；Acc=0.753/Composite=0.860 是历史结果；Q2 BORDERLINE+ 是历史初稿评估；标注可靠性未完成；R-Judge 外部验证失败
 
 ### 2. 给旧论文包 README 加顶部警告 ✅
 
-- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/README.md`
+- **文件**: `archive/research_packs_v0_4/submission_pack_v0_4/README.md`
 - **修改**: 在标题下方加入醒目 blockquote warning，标注 Deprecated naming / Not Q2-ready / Not independently reproducible / See DEPRECATION_NOTICE.md
 - **Q2 Readiness 行**: 加注 "(historical preliminary assessment — see deprecation notice above)"
 
@@ -376,7 +376,7 @@ Warning 内容统一为：
 
 ### 4. 生成 deprecated_claims_inventory.md ✅
 
-- **文件**: `papers/sci_affective_safety_calibration/submission_pack_v0_4/deprecated_claims_inventory.md`
+- **文件**: `archive/research_packs_v0_4/submission_pack_v0_4/deprecated_claims_inventory.md`
 - **内容**: 完整列出 96 处危险 claim，按类别分：
   - Semi-Real-300 occurrences: 59 处
   - BORDERLINE+ occurrences: 16 处

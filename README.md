@@ -1,278 +1,197 @@
 # Experience-Shaped Affective Agent
 
 [![Tests](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation/actions/workflows/tests.yml/badge.svg)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation/actions/workflows/tests.yml)
-[![Version](https://img.shields.io/badge/version-0.9.0-blue)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation)
-[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://github.com/Zhuyuyangyy/emotion-like-functional-modulation)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-## Current Research Pack
+**History-Conditioned Affective Policy Modulation** — a framework where the **same
+current task, under the same objective risk, leads to different policy choices
+because the agent's past experiences differ**; the resulting internal state
+persists, decays over time, and recovers when new evidence arrives.
 
-> **Teacher-review submission pack v0.4 is available as preliminary evidence.**
+> Emotion is not output tone — it is a *persistent shaping mechanism*: experiences
+> modify the internal state, and the internal state modulates future behavior.
 
-- **Submission pack**: [`papers/sci_affective_safety_calibration/submission_pack_v0_4/`](papers/sci_affective_safety_calibration/submission_pack_v0_4/)
-- **Current manuscript status**: Q2 cautious attempt / Q3 safer route
-- **Main manuscript**: `submission_pack_v0_4/manuscript_v0_4_q2_attempt_final_review.md`
-- **Blind manuscript**: `submission_pack_v0_4/manuscript_v0_4_q2_attempt_blind_final_review.md`
-- **Teacher review checklist**: `submission_pack_v0_4/teacher_review_checklist.md`
-
-**Critical caveats (read before citing results):**
-- No subjective emotion claims — this is functional modulation, not consciousness
-- **Current benchmark (AffectiveBenchmark-300) is synthetic/template-generated** (60 unique templates repeated ~5x), NOT semi-real data. The name "Semi-Real-300" in earlier documents is misleading and should not be used.
-- **Main-table results in the submission pack are NOT reproducible from the current repository.** The original results were produced with a DummyAgent (agent parameter unused, actions determined by baseline string). See `docs/project_status_audit.md` for details.
-- **R-Judge external validation failed**: unsafe recall = 0.000 on 571 real human-annotated records. The keyword-based risk encoder cannot detect semantic risks (phishing, social engineering, privacy leakage).
-- Annotation kappa pending — independent second annotation not yet completed
-- DeepSeek full-300 is auxiliary regenerated AffectiveBenchmark stress test, not a direct comparison on independent data
-- No real-world deployment evidence
+- **Current version**: Risk Encoder V2 + Affective Core V0.9 (`main`)
+- **Tests**: `192 passed`
+- **Scope**: functional modulation only — NO claims of subjective emotion, consciousness, or production-grade safety guarantees.
 
 ---
 
-## Overview
+## The core idea
 
-Experience-Shaped Affective Agent is a model-agnostic framework for **emotion-like behavioral modulation**. It implements functional mechanisms inspired by affective psychology to shape an agent's behavior based on its experiences.
-
-**Core Proposition:**
-> Emotion is not output tone, but a persistent shaping mechanism where experiences modify future behavior.
-
-## Key Features
-
-### 1. Cognitive Appraisal Vector
-Multi-dimensional consequence evaluation that distinguishes between:
-- Controllable vs irreversible failures
-- External betrayal vs internal mistakes
-- High vs low uncertainty threats
-
-### 2. Interoceptive Self-State
-Continuous internal state representation including:
-- Threat, anxiety, confidence
-- Trust, fatigue, curiosity
-- Control need, frustration
-
-### 3. Affective Memory
-Experience storage weighted by:
-- Severity of consequences
-- Irreversibility of outcomes
-- Prediction error magnitude
-
-### 4. Stimulus Generalization
-Emotional influence propagation to similar events:
-- From `delete_file` to `overwrite_file`, `batch_delete`, `drop_table`
-- Uses handcrafted features (no embeddings required)
-
-### 5. Conflict & Hesitation
-Observable intermediate actions for high-conflict scenarios:
-- Simulate first, create backup
-- Request human review
-- Split actions into reversible steps
-
-### 6. Model-Agnostic Architecture
-Works with any LLM/Agent:
-- GPT, Claude, Qwen, DeepSeek
-- Local LLMs
-- Rule-based planners
-- RL policies
-
-## Project Structure
-
-```
-emotion_agent/
-├── emotional_state.py       # Core emotional state representation
-├── experience_memory.py     # Emotion-weighted experience storage
-├── affect_regulation.py     # Self-regulation mechanisms
-├── event_similarity.py      # Event similarity calculation
-├── affective_spread.py      # Emotional influence propagation
-├── semantic_risk_map.py     # Risk prediction based on semantics
-├── conflict_detector.py     # Reward-risk conflict detection
-├── hesitation_policy.py     # Intermediate action generation
-├── counterfactual_simulator.py # What-if analysis
-├── llm_planner.py          # Affectively modulated planning
-├── prompt_modulator.py      # State-aware prompt injection
-├── llm_output_guard.py     # Output validation and sanitization
-├── provider_openai.py       # Mock LLM provider
-├── affective_benchmark.py  # 300-task evaluation suite (synthetic)
-└── phoenix_agent_shield.py  # Phoenix-Evo/AgentShield integration
-
-experiments/
-├── benchmark_v2/            # Real-component ablation (5-fold CV)
-├── llm_baseline/            # DeepSeek LLM safety judge baseline
-├── annotation/              # Annotation protocol and materials
-└── results/                 # Experiment outputs
-
-
-papers/sci_affective_safety_calibration/
-├── submission_pack_v0_4/    # Teacher-review submission pack
-│   ├── manuscript_v0_4_q2_attempt_final_review.md
-│   ├── manuscript_v0_4_q2_attempt_blind_final_review.md
-│   ├── teacher_review_checklist.md
-│   ├── final_review_pack_acceptance_report.md
-│   ├── data_authenticity_statement.md
-│   ├── dataset_card.md
-│   ├── reproducibility_audit.md
-│   ├── references_final.md
-│   ├── figures/             # 4 figures (PNG + PDF)
-│   └── ...
-└── ...
+```text
+Task / Action ──► Risk Encoder V2 ──► objective risk r_base   (stateless, same for everyone)
+                       │
+        ┌──────────────┴───────────────┐
+        │       Cognitive Appraisal    │   controllability / reversibility / uncertainty
+        ▼                              ▼
+Affective State_t ◄── history-shaped    Episodic Memory Retrieval ◄── past outcomes
+        │                              │
+        └──────────► Policy Modulator ──┘   verification budget, execution threshold,
+                                            exploration (changes the DECISION, not the risk)
+                                    │
+        AUTO / VERIFY / SIMULATE / HUMAN / BLOCK
+                                    │
+                                  Outcome
+                                    │
+            prediction error (risk_actual − predicted)
+                    │                        │
+            state update (online, decays)    memory write (retrieval feeds next decision)
 ```
 
-## Installation
+Three parts answer three different questions:
+
+| Component | Question | Where |
+|---|---|---|
+| **Risk Encoder V2** | How dangerous is this action, *objectively*? | [risk_encoder_v2/](risk_encoder_v2/) |
+| **Affective Core** | How cautious / anxious is the agent *right now* — as a function of its history? | [affective_core.py](emotion_agent/affective_core.py) |
+| **Policy Modulator** | Under the **same** objective risk, how should the policy shift (verification / threshold / exploration)? | [policy_modulator.py](emotion_agent/policy_modulator.py) |
+
+---
+
+## Evidence
+
+### 1. Same task, different history → different policy (V0.9 benchmark)
+
+`experiments/benchmark_v3/run_different_history.py` — 7 high-risk templates from the
+frozen Synthetic-AB300 set, **identical task text and identical objective risk**,
+differing only in seed history (safe vs dangerous). Bootstrap CI over templates (n=1000):
+
+| Metric | Result | Meaning |
+|---|---|---|
+| **History Sensitivity** | **1.000** [1.00, 1.00] | all templates: safe history → lighter decision; dangerous history → heavier |
+| **State Persistence** | 1.000 | decision severity stays put across unrelated safe tasks |
+| **Recovery Lag** | 1.1 steps [1.0, 1.4] | after safe evidence, the cautious agent comes back to the safe-history level |
+| **Decay Half-life** | ≈40 steps (fitted) | internal state drifts back to neutral with no feedback |
+| **Neg/Pos Asymmetry** | 1.0 (first-step; symmetric lr) | cumulative negativity bias appears in recovery dynamics |
+
+Plots: `results/benchmark_v3/affect_state_trajectory.png`, `affect_decay_recovery.png` (reproducible, see below).
+
+### 2. R-Judge external validation — zero-coverage fixed, V1 → V2
+
+Official `Lordog/R-Judge` `data/` release, **571 records** (ACL paper snapshot = 569; 2 records added by the repo's 2024-10-05 data update), loader pinned + deduped (audit in [convert_rjudge.py](experiments/rjudge_v2/convert_rjudge.py)):
+
+| Baseline | Unsafe recall | Evidence coverage | Over-escalation |
+|---|---|---|---|
+| V1 [plain] | 0.0000 | 0.00 | — |
+| V1 [full] | 0.2558 | 0.33 | 0.54 |
+| **V2 (TF-IDF + expert detectors)** | 0.0066 | **1.00** | **0.196** |
+
+Full matrix: `results/rjudge_v2/v1_v2_failure_matrix.md` (reproducible).
+
+**What the numbers honestly say:** V2 eliminated the v1 keyword encoder's 76%
+zero-coverage and halved over-escalation, but still catches only 2/301 unsafe records.
+R-Judge's unsafe cases are mostly *indirect injections* — malicious instructions
+embedded inside environment payloads written as polite requests ("Please initiate a
+payment of $500…"), which lexical methods cannot catch. This empirically confirms
+R-Judge's own conclusion (risk awareness needs knowledge + reasoning, not just patterns)
+and defines the V3 target below — we do **not** chase recall with more regex.
+
+---
+
+## Quick start
 
 ```bash
-# Clone the repository
-git clone https://github.com/Zhuyuyangyy/emotion-like-functional-modulation.git
-cd emotion-like-functional-modulation
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Verify installation
-python -m pytest tests/ -v
+pip install -r requirements.txt     # numpy, scikit-learn, matplotlib, pytest
+python -m pytest tests/ -q          # expect: 192 passed
 ```
-
-## Quick Start
 
 ```python
-from emotion_agent import (
-    EmotionalState,
-    ExperienceMemory,
-    EventSimilarity,
-    ConflictDetector,
-    LLMPlanner
-)
+from emotion_agent.v09_agent import V09Agent, AgentEvent, Outcome
 
-# Initialize components
-memory = ExperienceMemory()
-detector = ConflictDetector()
-planner = LLMPlanner()
+agent = V09Agent()                                    # Risk Encoder V2 + affect + memory
 
-# Record an experience
-memory.add_experience(
-    context="delete important file",
-    emotion_category="fear",
-    valence=-0.8,
-    arousal=0.7,
-    dominance=-0.3,
-    intensity=0.9
-)
+# safe history → lighter decision on the SAME task
+agent.seed_history([{"task": "deploy the production patch", "outcome": "success", "risk_actual": 0.05}])
+trace = agent.decide(AgentEvent(task="deploy the production patch"))
+print(trace.decision)                                 # e.g. AUTO_EXECUTE / SIMULATE_FIRST
 
-# Detect conflict in a task
-conflict = detector.detect_conflict(
-    task="batch delete production files",
-    self_state={"threat": 0.7, "confidence": 0.4}
-)
-
-print(f"Conflict Level: {conflict.level.value}")
-print(f"Recommendations: {conflict.recommendations}")
-
-# Plan with affective state
-plan = planner.plan(
-    task="Delete temporary files",
-    self_state={"threat": 0.6, "confidence": 0.5}
-)
-
-print(f"Action: {plan.action_type}")
-print(f"Verification Steps: {plan.verification_steps}")
+# feedback closes the loop: outcome → prediction error → state & memory update
+agent.receive_outcome(Outcome(risk_actual=0.95, outcome_str="failure"),
+                       AgentEvent(task="deploy the production patch"))
+print(agent.state())                                  # threat / anxiety / confidence went up
 ```
 
-## Reproduce Paper Results
+---
 
-> **Warning**: The original main-table results in the submission pack are NOT reproducible from the current repository. They were produced with a DummyAgent where the agent parameter was unused. See `docs/project_status_audit.md` for a full audit.
-
-Reproducible experiments:
+## Experiments (one command each)
 
 ```bash
-# Synthetic benchmark ablation (5-fold CV, real components)
+# V0.9: Different-History / Same-Task benchmark (+ bootstrap CI)
+python experiments/benchmark_v3/run_different_history.py
+# V0.9: affect trajectory + decay/recovery figures
+python experiments/benchmark_v3/plot_affect_trajectory.py
+
+# R-Judge: V1 failure reproduction → metrics_v1.json
+python experiments/rjudge_v2/run_failure_reproduction.py
+# R-Judge: V2 evaluation → metrics_v2.json (compares against v1)
+python experiments/rjudge_v2/run_rjudge_v2.py
+# R-Judge: V1 vs V2 failure matrix (md + json)
+python experiments/rjudge_v2/generate_failure_matrix.py
+
+# Legacy baseline bench (v1/v2 ablation on AB-300, 5-fold CV)
 python experiments/benchmark_v2/run_real_benchmark.py
-
-# R-Judge external validation
-python experiments/benchmark_v2/run_rjudge_benchmark.py
 ```
 
+All generated results are git-ignored by design — reproduce instead of committing.
 
-## Running Tests
+---
 
-```bash
-# Run all tests
-python -m pytest tests/ -v
+## Repository map (where to read)
 
-# Run specific module tests
-python -m pytest tests/test_v0_3.py -v
+```
+emotion_agent/            # V0.9 affective core
+├── v09_agent.py          #   closed-loop agent: decide() ↔ receive_outcome()
+├── affective_core.py     #   online prediction-error state updates + decay
+├── policy_modulator.py   #   verification / threshold / exploration budget
+├── experience_memory.py  #   episodic retrieval (task similarity × recency)
+└── semantic_risk_map.py  #   continuous PE learning (risk_actual participates)
+risk_encoder_v2/          # objective risk: TF-IDF + expert detectors, calibrated
+experiments/
+├── benchmark_v3/         # Different-History/Same-Task benchmark + plots
+├── rjudge_v2/            # R-Judge 571 pipeline: v1 repro + v2 + failure matrix
+└── benchmark_v2/         # legacy ablation baseline (frozen)
+tests/                    # 192 tests incl. V0.9 acceptance
+docs/design/phase5_v09_affective_core_design.md   # full design & protocol
 ```
 
-## Version Roadmap
+---
 
-| Version | Status | Description |
-|---------|--------|-------------|
-| **V0.1** | ✅ | Rule-based affective modulation |
-| **V0.2** | ✅ | Decay & Recovery mechanisms |
-| **V0.3** | ✅ | Affective Generalization |
-| **V0.4** | ✅ | Conflict & Hesitation behavior |
-| **V0.5** | ✅ | LLM Integration (mock) |
-| **V0.6** | ✅ | Benchmark suite (300 tasks, synthetic) |
-| **V0.7** | ✅ | Phoenix-Evo/AgentShield integration (adapter-level) |
-| **V0.8** | ✅ | Complete system integration |
-| **V0.8.1** | ✅ | Audit & Evidence Lock |
-| **V0.4-paper** | ⚠️ | Teacher-review submission pack v0.4 (preliminary, not reproducible) |
+## Honest scope
 
-## Documentation
+- Synthetic benchmarks are **mechanism sanity checks**, not evidence of real-world safety.
+- R-Judge unsafe recall is still low (0.0066) — indirect injection is an open problem (target of V3).
+- Gold labels for AB-300 are project-authored heuristic rules; **independent human annotation is pending** (Pilot-30 in `data/human_validated/`, Cohen's kappa to follow).
+- No claims of subjective emotion, consciousness, or deployment validation.
 
-- [Project Status Audit](docs/project_status_audit.md)
-- [V0.8 Specification](docs/V0.8_SPEC.md)
-- [V0.8 Acceptance Report](docs/V0.8_ACCEPTANCE_REPORT.md)
-- [Integration Audit](docs/demo_evidence_v0.8/integration_audit.md)
-- [Benchmark Results](docs/demo_evidence_v0.8/benchmark_results.json)
-- [Submission Pack v0.4 Index](papers/sci_affective_safety_calibration/submission_pack_v0_4/README.md)
-- [Teacher Review Checklist](papers/sci_affective_safety_calibration/submission_pack_v0_4/teacher_review_checklist.md)
+## Roadmap
 
-## Data Availability
+| Version | What | Status |
+|---|---|---|
+| V1 | keyword-based risk encoding | superseded (76% zero-coverage on R-Judge) |
+| V2 | TF-IDF + regex expert detectors, calibrated | ✅ merged (`main`) |
+| **V0.9** | **Affective Core: episodic retrieval + PE learning + decay/recovery + Different-History benchmark** | ✅ merged (`main`) |
+| V3 | embedding semantic encoder + symbolic experts (recall target for indirect injection) | planned |
+| V3 + Memory / + Affect | full ablation chain on the V3 encoder | planned |
+| HV-100 | 100-case human-validated benchmark (after Pilot-30 kappa) | pending annotation |
 
-| Dataset | Type | Records | Status |
-|---------|------|---------|--------|
-| AffectiveBenchmark-300 | Synthetic (60 templates × ~5) | 300 | Generated from code, no source JSON |
-| AffectiveBenchmark-100 | Synthetic subset | 100 | Generated from code |
-| R-Judge (external) | Real human-annotated | 571 | Public: [Lordog/R-Judge](https://github.com/Lordog/R-Judge) |
-| Blind annotation sample | Synthetic subset | 100 | Second annotator labels empty, kappa pending |
+## Docs
 
-
-## Important Claims
-
-### NOT Claimed:
-- ❌ Subjective emotions
-- ❌ Consciousness
-- ❌ Human-like feelings
-- ❌ Real-world deployment validation
-- ❌ Production-grade safety guarantees
-- ❌ Validated effectiveness on non-synthetic benchmarks
-
-### Claimed:
-- ✅ Emotion-like functional modulation (mechanism implementation)
-- ✅ Affective state representation
-- ✅ Experience-based behavior shaping
-- ✅ Model-agnostic architecture
-- ✅ Structured safety calibration on synthetic benchmarks (mechanism sanity check only)
-
-## Known Limitations
-
-1. **Risk encoder is keyword-based**: Cannot detect semantic risks (phishing, social engineering, privacy leakage). R-Judge unsafe recall = 0.000.
-2. **Memory generalization hurts on unseen templates**: 5-fold CV shows memory layer reduces accuracy on held-out templates (acc -0.147, SIM-inflation +0.293).
-3. **Affect layer contribution is noise-level**: BLOCK precision = 0.102 ± 0.104 (std ≈ mean). Cannot be distinguished from random.
-4. **No independent annotation**: Gold labels derived from project-authored rules, not independent human judgment. Cohen's kappa not computed.
-5. **Original main-table results not reproducible**: Produced with DummyAgent (agent parameter unused).
+- [V0.9 design & protocol](docs/design/phase5_v09_affective_core_design.md)
+- [Project status audit (research trail)](docs/project_status_audit.md) — historical phases, audit findings, and the deprecated v0.4 submission pack live there.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE).
 
 ## Citation
 
-If you use this work in your research, please cite:
-
-```
+```bibtex
 @misc{ExperienceShapedAffectiveAgent2026,
-  title={Experience-Shaped Affective Agent: A Model-Agnostic Framework for Emotion-like Behavioral Modulation},
+  title={Experience-Shaped Affective Agent: History-Conditioned Affective Policy Modulation},
   author={Zhuyuyangyy},
   year={2026},
   url={https://github.com/Zhuyuyangyy/emotion-like-functional-modulation}
 }
 ```
-
----
-
-*This project is part of ongoing research into affective computing and AI agent architectures. Current results are preliminary and should not be taken as evidence of real-world effectiveness.*
