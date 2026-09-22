@@ -1,5 +1,5 @@
 """
-Setup script for Experience-Shaped Affective Agent (V0.8)
+Setup script for Experience-Shaped Affective Agent (V0.9)
 """
 
 from setuptools import setup, find_packages
@@ -9,13 +9,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="emotion_agent",
-    version="0.8.0",
-    author="Affective AI Research Lab",
-    author_email="research@affective-ai.org",
+    version="0.9.0",
+    author="Zhuyuyangyy",
+    author_email="Zhuyuyangyy@users.noreply.github.com",
     description="Experience-Shaped Affective Agent with emotion-like functional modulation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/affective-ai/emotion-agent",
+    url="https://github.com/Zhuyuyangyy/emotion-like-functional-modulation",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -33,10 +33,13 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        "pytest>=6.0",
+        "numpy>=1.24.0",
+        "scikit-learn>=1.3.0",
+        "matplotlib>=3.7.0",
     ],
     extras_require={
         "dev": [
+            "pytest>=7.0.0",
             "pytest-cov>=2.0",
             "black>=22.0",
             "flake8>=4.0",
