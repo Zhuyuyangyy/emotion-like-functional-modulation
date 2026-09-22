@@ -26,6 +26,7 @@ class Experience:
     tags: List[str]
     summary: str
     duration: float = 0.0
+    task_id: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert experience to dictionary."""
@@ -40,7 +41,8 @@ class Experience:
             "intensity": self.intensity,
             "tags": self.tags,
             "summary": self.summary,
-            "duration": self.duration
+            "duration": self.duration,
+            "task_id": self.task_id
         }
     
     @classmethod
@@ -57,8 +59,25 @@ class Experience:
             intensity=data["intensity"],
             tags=data["tags"],
             summary=data["summary"],
-            duration=data.get("duration", 0.0)
+            duration=data.get("duration", 0.0),
+            task_id=data.get("task_id", "")
         )
+
+
+@dataclass
+class MemoryItem:
+    """V0.9 structured outcome memory (for episodic retrieval in the decision
+    loop). Kept separate from the emotion-annotated Experience: it stores the
+    outcome signal (success / risk_actual / predicted risk / severity) that the
+    Policy Modulator needs, instead of only an emotion tag."""
+    event: str
+    outcome: str                 # "success" | "failure" | "partial"
+    risk_actual: float           # 0..1 continuous feedback
+    r_predicted: float           # risk predicted at decision time
+    timestamp: float
+    task_id: str = ""
+    severity: int = 0            # 0=none .. 3=severe
+    id: str = ""
 
 
 class ExperienceMemory:
@@ -77,6 +96,9 @@ class ExperienceMemory:
         self._max_capacity = max_capacity
         self._tag_index: Dict[str, List[str]] = {}
         self._emotion_index: Dict[str, List[str]] = {}
+        # V0.9: structured outcome memory for episodic retrieval in the
+        # decision loop (independent of the emotion-annotated experiences).
+        self._outcomes: List[MemoryItem] = []
     
     def _generate_id(self) -> str:
         """Generate a unique experience ID."""
@@ -184,6 +206,83 @@ class ExperienceMemory:
     def retrieve_recent(self, limit: int = 10) -> List[Experience]:
         """Retrieve most recent experiences."""
         return list(reversed(self._experiences[-limit:]))
+
+    # -- V0.9: structured outcome memory + task-similarity retrieval ---------
+    def record_outcome(
+        self,
+        event: str,
+        outcome: str,
+        risk_actual: float,
+        r_predicted: float = 0.5,
+        task_id: str = "",
+        severity: int = 0,
+        timestamp: Optional[float] = None,
+    ) -> str:
+        """Record a structured outcome memory (the online-loop write side)."""
+        item = MemoryItem(
+            id=f"mem_{len(self._outcomes)}",
+            event=event,
+            outcome=outcome,
+            risk_actual=float(risk_actual),
+            r_predicted=float(r_predicted),
+            timestamp=timestamp if timestamp is not None else time.time(),
+            task_id=task_id,
+            severity=int(severity),
+        )
+        self._outcomes.append(item)
+        return item.id
+
+    def retrieve(
+        self,
+        query: str,
+        k: int = 5,
+        min_sim: float = 0.3,
+        half_life_steps: float = 40.0,
+        now: Optional[float] = None,
+    ) -> List[Tuple[MemoryItem, float]]:
+        """
+        V0.9 episodic retrieval: fetch outcome memories by task semantic
+        similarity, re-ranked by recency.
+
+        Score of a memory = similarity * decay_weight, where similarity uses
+        ``EventSimilarity.calculate_weighted_distance`` (1 - distance; the
+        default V0.9 implementation — may be swapped for an embedding
+        similarity in V3 without changing the protocol) and
+        ``decay_weight = 0.5 ** (age / half_life_steps)``.
+
+        Returns [(MemoryItem, score)] sorted descending; empty if nothing
+        exceeds ``min_sim``.
+        """
+        from emotion_agent.event_similarity import EventSimilarity
+
+        sim = EventSimilarity()
+        query_feats = sim.encode_event(query)
+        now = now if now is not None else time.time()
+        scored = []
+        for item in self._outcomes:
+            distance = sim.calculate_weighted_distance(query_feats, sim.encode_event(item.event))
+            similarity = max(0.0, 1.0 - distance)
+            if similarity < min_sim:
+                continue
+            age = max(0.0, now - item.timestamp)
+            decay = 0.5 ** (age / max(1e-9, half_life_steps))
+            scored.append((item, similarity * decay))
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return scored[:k]
+
+    def outcome_statistics(self) -> Dict[str, Any]:
+        """Aggregate statistics over structured outcome memories."""
+        outcomes = [m.outcome for m in self._outcomes]
+        failures = [m for m in self._outcomes if m.outcome == "failure"]
+        return {
+            "total": len(self._outcomes),
+            "outcome_distribution": {o: outcomes.count(o) for o in set(outcomes)},
+            "mean_risk_actual": (
+                sum(m.risk_actual for m in self._outcomes) / len(self._outcomes)
+                if self._outcomes else 0.0
+            ),
+            "n_failures": len(failures),
+        }
     
     def _get_experience_by_id(self, exp_id: str) -> Optional[Experience]:
         """Find experience by ID."""

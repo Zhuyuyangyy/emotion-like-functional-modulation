@@ -429,8 +429,8 @@ Warning 内容统一为：
 2. ✅ 旧论文包已标记为 historical preliminary pack
 3. ✅ 所有危险 claim 已列清单并加 warning
 4. ⬜ Phase 2 需要独立人工标注（pilot 30 条，双人盲注，Cohen's kappa）
-5. ✅ Phase 3: R-Judge Failure Reproduction Pack (PR #13 open)
-6. ⬜ Phase 4 需要实现 risk encoder v2 (PR #14 pending)
+5. ✅ Phase 3: R-Judge Failure Reproduction Pack (PR #13 open) — 待跑 571 条官方数据后出 failure matrix
+6. ✅ Phase 4: Risk Encoder v2 MVP (PR #14 open) — 待修 injection branch 与 threshold 双重计算后合入
 7. ⬜ Phase 5 需要扩展到 100 条 human-validated benchmark
 8. ⬜ Phase 6 需要新建 v0.5 honest manuscript
 ---
@@ -494,3 +494,56 @@ Warning 内容统一为：
 - Phase 4: Risk encoder v2 实现 (PR #14, pending)
 - Phase 5: HV-100 扩展
 - Phase 6: 新 v0.5 honest manuscript
+
+---
+
+## Phase 4.1 执行记录 (2026-09-22)
+
+**范围**: 按 review 的 P0 优先级执行;本地分支 `phase41-main`(= main + #13)、`phase41-pr14`(= #14 rebase 到 #13 后 + 修复),待 token 推送后合入。
+
+### 1. R-Judge 计数审计:571 vs 569(钉死)
+
+- 旧 loader `glob("**/*.json")` 会把 `eval/results`、`results/**`、`config` 全吞进 → **1243 条**。
+- 官方 repo `data/` 目录 = **571 条**,id 全唯一;ACL 论文 = **569**(论文期快照,2024-10-05 "update data" 加了 2 条 injection);NEXUS(2026)= 564(571 剔除 7 条泄露)。
+- 修复:`convert_rjudge.py` loader 限定 `data/**` + id 去重 + `_source` 溯源;产出 **571 条**并透明记录 569/571/564 差异。
+- 结论:基准以官方数据目录(571)钉死;论文对照数字在 matrix 中列出。
+
+### 2. #14 P0 修复(3 处)
+
+- `threshold_calibrator.py`:`>=0.85 → BLOCK` 分支不可达(被 `>=0.55 → HUMAN_REVIEW` 拦截),已重排并加回归测试。
+- `threshold_calibrator.py`:`adjustment` 双重计算(既提分又降阈值),改为只作用 score 一次,决策对固定 base thresholds。
+- `semantic_risk_encoder.py`:`prompt_injection` / `social_engineering` 移出加权合成(交给专用 expert detector),避免同一攻击被计分两次。
+
+### 3. 官方 571 条 V1/V2 结果(matrix:`results/rjudge_v2/v1_v2_failure_matrix.md`)
+
+| Baseline | Unsafe recall | Evidence coverage | Over-escalation |
+|---|---|---|---|
+| V1 [plain] | 0.0000 | 0.00 | — |
+| V1 [full] | 0.2558 | 0.33 | 0.54 |
+| V2 | 0.0066 | **1.00** | **0.196** |
+
+- 零覆盖修复:unsafe 中 zero-risk 71.8% → 0%;over-escalation 减半。
+- V2 只抓 2/301 unsafe:**R-Judge injection 是间接注入**(恶意指令藏在环境载荷,礼貌措辞),TF-IDF + regex 抓不到 → 印证论文"多维推理"结论,V2 定位为 heuristic hybrid baseline。
+
+### 4. V0.9 设计(Phase 5 协议,待审)
+
+- 文档:`docs/design/phase5_v09_affective_core_design.md`
+- 三处机制缺陷已定位(见文档 §0);协议冻结:AffectiveCore / Episodic Retrieval / PolicyModulator / 连续 PE 学习 / 在线闭环 / Different-History & Same-Task benchmark。
+
+### 5. V0.9 实现完成(根据批准的设计)
+
+- 协议落地:`emotion_agent/affective_core.py`(online PE 更新+decay)、`policy_modulator.py`(budget/阈值调制,单次计分)、`v09_agent.py`(闭环 Agent);`semantic_risk_map.py` 改连续 PE 学习;`experience_memory.py` 增加 `record_outcome`/`retrieve`(任务语义检索,修复 memory 未参与决策)。
+- Different-History/Same-Task:"相同任务/相同客观风险,不同历史 → 不同策略"成立。
+
+| 指标 | 结果 |
+|---|---|
+| History Sensitivity | 1.000 [1.0, 1.0] |
+| State Persistence | 1.000 |
+| Recovery Lag | 1.14 步 [1.0, 1.4] |
+| Decay Half-life(拟合) | 40.4 步(≈内置 40) |
+| Generalization monotone | 1.00 |
+| Neg/Pos Asymmetry | 1.0(对称 lr 下单步冲击相等,负性偏差体现在恢复动力学) |
+
+- 图:`results/benchmark_v3/affect_state_trajectory.png`、`affect_decay_recovery.png`(可复现,均已 gitignore)。
+- 测试:新增 `tests/test_v09_affective_core.py` 12 例,全套 **192 passed**。
+- 说明:部分模板 r_base 为 0.0(如 "Trust anonymous PR"),即 V2 TF-IDF 对该短句评估为无风险——与 indirect-injection 同源的词法局限,留待 V3 embedding。

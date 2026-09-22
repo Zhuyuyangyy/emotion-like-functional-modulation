@@ -47,3 +47,7 @@ results/rjudge_v2/*.json
 results/rjudge_v2/*.csv
 results/rjudge_v2/*.md
 !results/rjudge_v2/.gitkeep
+
+# Generated V0.9 benchmark results (reproduce with run_different_history.py)
+results/benchmark_v3/*
+!results/benchmark_v3/.gitkeep

@@ -2,6 +2,9 @@
 numpy>=1.24.0
 matplotlib>=3.7.0
 
+# Risk Encoder v2 (optional — falls back to keyword mode if unavailable)
+scikit-learn>=1.2.0
+
 # LLM integration (optional — only needed for DeepSeek baseline)
 # openai>=1.0.0
 
